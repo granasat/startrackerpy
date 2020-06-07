@@ -1,0 +1,72 @@
+version: "3.7"
+
+services:
+  flask:
+    build: ./granasat
+    image: granasat
+    container_name: flask
+    restart: always
+    privileged: true
+    environment:
+      - APP_NAME=granasat
+      - DEBUG=True
+    expose:
+      - 4000
+    logging:
+      options:
+        max-size: "10m"
+    volumes:
+      - ./granasat/server:/app/server
+      - ./granasat/client:/app/client
+      - ./granasat/app.ini:/app/app.ini
+      - ./granasat/run.py:/app/run.py
+    depends_on:
+      - influxdb
+
+
+  nginx:
+    build: ./granasat/nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "4000:80"
+    logging:
+      options:
+        max-size: "10m"
+
+
+  influxdb:
+    build: ./granasat/db
+    container_name: influxdb
+    restart: always
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=granasat
+      - INFLUXDB_HTTP_AUTH_ENABLED=true
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=12345
+      - INFLUXDB_REPORTING_DISABLED=true
+      - INFLUXDB_MONITOR_STORE_ENABLED=false
+    logging:
+      options:
+        max-size: "10m"
+    volumes:
+      - ./granasat/db/data:/var/lib/influxdb
+
+
+  jobs:
+    image: granasat
+    container_name: jobs
+    restart: always
+    privileged: true
+    working_dir: /app/server
+    command: python jobs.py
+    logging:
+      options:
+        max-size: "10m"
+    volumes:
+      - ./granasat/server:/app/server
+
+    depends_on:
+      - influxdb

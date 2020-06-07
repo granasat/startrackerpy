@@ -1,0 +1,63 @@
+<!-- Brightness -->
+<section class="row no-gutters">
+  <div class="col-4">
+    <span class="font-weight-bold indigo-text mr-2 mt-1">Brightness: </span>
+  </div>
+  <div class="col-7">
+    <input type="range" id="brightness-input" class="custom-range" min="0" max="63" step="1">
+  </div>
+  <div class="col-1">
+    <span id="brightness-value" class="control-value"></span>
+  </div>
+</section>
+
+<!-- Gamma -->
+<section class="row no-gutters">
+  <div class="col-4">
+    <span class="font-weight-bold indigo-text mr-2 mt-1">Gamma: </span>
+  </div>
+  <div class="col-7">
+    <input type="range" id="gamma-input" class="custom-range" min="1" max="500" step="1">
+  </div>
+  <div class="col-1">
+    <span id="gamma-value" class="control-value"></span>
+  </div>
+</section>
+
+<!-- Gain -->
+<section class="row no-gutters">
+  <div class="col-4">
+    <span class="font-weight-bold indigo-text mr-2 mt-1">Gain: </span>
+  </div>
+  <div class="col-7">
+    <input type="range" id="gain-input" class="custom-range" min="260" max="1023" step="1">
+  </div>
+  <div class="col-1">
+    <span id="gain-value" class="control-value"></span>
+  </div>
+</section>
+
+<!-- Exposure -->
+<section class="row no-gutters">
+  <div class="col-4">
+    <span class="font-weight-bold indigo-text mr-2 mt-1">Exposure: </span>
+  </div>
+  <div class="col-7">
+    <input type="range" id="exposure-input" class="custom-range" min="0" max="300000" step="100">
+  </div>
+  <div class="col-1">
+    <span id="exposure-value" class="control-value"></span>
+  </div>
+</section>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light inner-nav">
+  <span class="navbar-brand" href="/">Actions</a>
+</nav>
+<div class="btns-wrapper">
+  <button id="btn-frame" type="button" class="btn btn-primary">
+    <i class="fas fa-camera"></i> Get frame
+  </button>
+  <button id="btn-matlab" type="button" class="btn btn-primary disabled">
+    <i class="fas fa-cloud-download-alt"></i> Matlab
+  </button>
+</div>

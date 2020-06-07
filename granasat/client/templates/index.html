@@ -1,0 +1,32 @@
+<html>
+  <head>
+    {% include "header.html" %}
+  </head>
+  <body>
+    <section class="container-fluid">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">GranaSat 2.0</a>
+        <!-- /.navbar-header -->
+      </nav>
+      <section id="main-content" class="row justify-content-md-center">
+        <div class="monitor col col-3">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <span class="navbar-brand" href="/">Monitor</a>
+          </nav>
+          {% include "monitor.html" %}
+        </div>
+        <div class="frame col">
+          <div class="loader"></div>
+          <img id="img-frame" src="/static/img/camera.png" class="img-fluid mx-auto d-block"/>
+        </div>
+        <div class="camera col col-3">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <span class="navbar-brand" href="/">Camera</a>
+          </nav>
+          {% include "camera.html" %}
+        </div>
+      </section>
+    </section>
+    {% include "footer.html" %}
+  </body>
+</html>
