@@ -1,2 +1,2 @@
-granasat/db/data/*
+granasat/influxdb/data/*
 **/__pycache__

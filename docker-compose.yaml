@@ -36,7 +36,7 @@ services:
 
 
   influxdb:
-    build: ./granasat/db
+    build: ./granasat/influxdb
     container_name: influxdb
     restart: always
     ports:
@@ -52,7 +52,7 @@ services:
       options:
         max-size: "10m"
     volumes:
-      - ./granasat/db/data:/var/lib/influxdb
+      - ./granasat/influxdb/data:/var/lib/influxdb
 
 
   jobs:
