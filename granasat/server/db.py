@@ -19,13 +19,13 @@ class Db():
         conn.commit()
         conn.close()
 
-    def insert_burst(self, duration, interval, gamma, gain, exposure):
+    def insert_burst(self, duration, interval, brightness, gamma, gain, exposure):
         conn = sqlite3.connect(self._db)
         c = conn.cursor()
         c.execute(
             """INSERT INTO burst(duration, interval, brightness, gamma, gain, exposure)
             VALUES(?,?,?,?,?,?)
-            """, (duration, interval, gamma, gain, exposure))
+            """, (duration, interval, brightness, gamma, gain, exposure))
         conn.commit()
         conn.close()
 
@@ -59,7 +59,7 @@ class Db():
         else:
             query = "UPDATE burst SET progress={}, updated=datetime('now','localtime') " + \
                 "WHERE id={}"
-        query = query.format(id, progress)
+        query = query.format(progress, id)
         c.execute(query)
         conn.commit()
         conn.close()

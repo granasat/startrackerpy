@@ -48,6 +48,8 @@ services:
       - INFLUXDB_ADMIN_PASSWORD=12345
       - INFLUXDB_REPORTING_DISABLED=true
       - INFLUXDB_MONITOR_STORE_ENABLED=false
+      - INFLUXDB_LOGGING_LEVEL=error
+      - INFLUXDB_DATA_QUERY_LOG_ENABLED=false
     logging:
       options:
         max-size: "10m"
