@@ -28,22 +28,25 @@ class Cam():
         self._id = 0
         self._lock = FileLock("/tmp/cam.lock")
 
+    def lock_acquire(self, timeout=10):
+        self._lock.acquire(timeout=timeout)
+
+    def lock_release(self):
+        self._lock.release()
+
     def read(self):
         """ Returns the cv2 camera object
         """
-        self._lock.acquire(timeout=10)
         cam = cv2.VideoCapture(self._id)
         cam.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1.0)
         ret, frame = cam.read()
-        self._lock.release()
 
         return ret, frame
 
     def get_camera_params(self):
         """ Returns the parameters read from the camera
         """
-        self._lock.acquire(timeout=10)
         cam = cv2.VideoCapture(self._id)
         response = {
             'brightness': cam.get(cv2.CAP_PROP_BRIGHTNESS),
@@ -51,16 +54,13 @@ class Cam():
             'gain': cam.get(cv2.CAP_PROP_GAIN),
             'exposure': cam.get(cv2.CAP_PROP_EXPOSURE),
         }
-        self._lock.release()
 
         return response
 
     def set_camera_params(self, params):
-        self._lock.acquire(timeout=10)
         cam = cv2.VideoCapture(self._id)
         cam.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1.0)
         for param, value in params.items():
             if value is not None:
                 cam.set(self.params_dict[param], value)
-        self._lock.release()

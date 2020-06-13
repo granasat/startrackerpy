@@ -32,8 +32,11 @@ def current_frame():
         'gain': int(request.args.get('gain')),
         'exposure': int(request.args.get('exposure')),
     }
+
+    CAM.lock_acquire()
     CAM.set_camera_params(cam_params)
     ret, frame = CAM.read()
+    CAM.lock_release()
     # Resize image to 1024x768
     frame = cv2.resize(frame, (1024, 768), cv2.INTER_AREA)
     _, im_arr = cv2.imencode('.jpg', frame)
@@ -61,11 +64,13 @@ def current_frame_tiff():
         'gain': int(request.args.get('gain')),
         'exposure': int(request.args.get('exposure')),
     }
+    CAM.lock_acquire()
     CAM.set_camera_params(cam_params)
     # Given some time to set the camera parameters
     time.sleep(1.5)
     ret, frame = CAM.read()
     cv2.imwrite('test.TIFF', frame)
+    CAM.lock_release()
 
     return "Done"
 
@@ -74,6 +79,7 @@ def current_frame_tiff():
 def get_camera_params():
     """ Returns a JSON with the current parameters of the camera.
     """
+    # TODO check if it is possible without lock
     params = CAM.get_camera_params()
 
     return jsonify(params)

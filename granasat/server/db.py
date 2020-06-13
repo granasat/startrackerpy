@@ -14,8 +14,8 @@ class Db():
         c.execute('''CREATE TABLE IF NOT EXISTS burst
         (id integer primary key, duration integer, interval integer,
         brightness integer, gamma integer, gain, exposure,
-        progress integer default 0)''')
-
+        progress integer default 0, inserted timestamp default (datetime('now','localtime')),
+        updated timestamp default null, finished timestamp default null)''')
         conn.commit()
         conn.close()
 
@@ -37,9 +37,10 @@ class Db():
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
         c.execute("SELECT * from burst")
+        res = [r for r in c]
         conn.close()
 
-        return c
+        return res
 
     def delete_burst(self, id):
         conn = sqlite3.connect(self._db)
@@ -51,8 +52,14 @@ class Db():
 
     def update_burst_progress(self, id, progress):
         conn = sqlite3.connect(self._db)
-        conn.row_factory = sqlite3.Row
         c = conn.cursor()
-        c.execute("UPDATE burst SET progress=? WHERE id=?", progress, id)
+        if progress == 100:
+            query = "UPDATE burst SET progress={}, updated=datetime('now','localtime'), " + \
+                "finished=datetime('now','localtime') WHERE id={}"
+        else:
+            query = "UPDATE burst SET progress={}, updated=datetime('now','localtime') " + \
+                "WHERE id={}"
+        query = query.format(id, progress)
+        c.execute(query)
         conn.commit()
         conn.close()

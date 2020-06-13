@@ -3,9 +3,11 @@ from datetime import datetime
 from sensors import CPU_SENSOR, DS1621, LSM303
 from influxdb import InfluxDBClient
 from db import Db
+from cam import Cam
 import multiprocessing
 import threading
 import logging
+import cv2
 
 def write_cpu_metrics(influx_cli, cpu_sensor):
     cpu_temp = cpu_sensor.read_temp()
@@ -110,11 +112,36 @@ def write_metrics():
 
 def burst():
     logging.info("Starting burst thread")
-    DB = Db("data/granasat.db")
+    db = Db("data/granasat.db")
+    cam = Cam()
     interval = 5
+    images_path = "data/bursts"
+
     while True:
-        bursts = DB.get_bursts()
-        time.sleep(10)
+        bursts = db.get_bursts()
+        for burst in bursts:
+            if burst['finished']:
+                continue
+
+            logging.debug('Starting burst {}'.format(burst['id']))
+            frames = int(burst['duration'] / bursts['interval'])
+            cam_params = {
+                'brightness': int(burst['brightness']),
+                'gamma': int(burst['gamma']),
+                'gain': int(burst['gain']),
+                'exposure': int(burst['exposure']),
+            }
+            cam.lock_adquire()
+            cam.set_camera_params(cam_params)
+            for frame in range(1, frames+1):
+                ret, frame = cam.read()
+                img_name = "{}/{}_{}.TIFF".format(images_path, burst['id'], frame)
+                cv2.imwrite(img_name, frame)
+                db.update_burst_progress(burst['id'], int(frame*100/frames))
+                time.sleep(burst['interval'])
+            cam.lock_release()
+
+        time.sleep(interval)
 
 if __name__ == "__main__":
     # Logging
