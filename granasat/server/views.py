@@ -66,7 +66,7 @@ def current_frame_tiff():
     }
     CAM.lock_acquire()
     CAM.set_camera_params(cam_params)
-    # Given some time to set the camera parameters
+    # Give some time to set the camera parameters
     time.sleep(1.5)
     ret, frame = CAM.read()
     cv2.imwrite('test.TIFF', frame)
