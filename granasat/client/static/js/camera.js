@@ -16,8 +16,14 @@ var camera = function(){
     // Get frame binding
     $("#btn-frame").click(getFrame);
 
+    // Queue burst binding
+    $("#btn-queue-burst").click(queueBurst);
+
     // Get camera parameters
     getCameraParams();
+
+    // Get bursts
+    getBursts();
 };
 
 
@@ -66,14 +72,67 @@ function getFrame(){
 
 // Ajax call to get the current parameters of the camera.
 function getCameraParams(){
-        $.ajax({
-            url: "/get-camera-params",
-            success: function(data){
-                $.each(data, function(key, value){
-                    $("#" + key + "-input").val(value);
-                    $("#" + key + "-value").html(value);
-                });
-            },
-            cache: false
-        });
-    };
+    $.ajax({
+        url: "/get-camera-params",
+        success: function(data){
+            $.each(data, function(key, value){
+                $("#" + key + "-input").val(value);
+                $("#" + key + "-value").html(value);
+            });
+        },
+        cache: false
+    });
+};
+
+// Ajax call to get the bursts
+function getBursts(){
+    $.ajax({
+        url: "/get-bursts",
+        success: function(data){
+            $("#table-bursts > tbody").html(data);
+        },
+        cache: false,
+        type: "get"
+    });
+};
+
+// Downloads the given burst id in the given format
+function downloadBurst(burstId, format){
+    window.location = `download-burst?burstId=${burstId}&format=${format}`;
+};
+
+// Deletes the given burst id
+function deleteBurst(burstId){
+    $.ajax({
+        url: "/delete-burst",
+        success: function(){
+            getBursts();
+        },
+        cache: false,
+        data: {
+            burstId: burstId
+        },
+        type: "get"
+    });
+};
+
+
+// Queue a new burst with the input duration and interval
+function queueBurst(){
+    $.ajax({
+        url: "/queue-burst",
+        success: function(){
+            getBursts();
+        },
+        cache: false,
+        data: {
+            duration: $('#input-duration').val(),
+            interval: $('#input-interval').val(),
+            brightness: $("#brightness-input").val(),
+            gamma: $("#gamma-input").val(),
+            gain: $("#gain-input").val(),
+            exposure: $("#exposure-input").val()
+        },
+        type: "get"
+    });
+};

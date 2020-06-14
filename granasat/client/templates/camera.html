@@ -61,3 +61,41 @@
     <i class="fas fa-cloud-download-alt"></i> Matlab
   </button>
 </div>
+
+<!-- Burst section -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light inner-nav">
+  <span class="navbar-brand" href="/">Bursts</a>
+</nav>
+<section class="row no-gutters">
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text">Duration</span>
+    </div>
+    <input type="number" class="form-control" aria-label="Duration"
+           aria-describedby="inputGroup-sizing-default" value="60"
+           id="input-duration">
+    <div class="input-group-prepend">
+      <span class="input-group-text">Interval</span>
+    </div>
+    <input type="number" class="form-control" aria-label="Interval"
+           aria-describedby="inputGroup-sizing-default" value="5"
+           id="input-interval">
+    <button id="btn-queue-burst" type="button" class="btn btn-primary">
+      <i class="fas fa-plus-circle"></i> Queue burst
+    </button>
+  </div>
+</section>
+
+<table id="table-bursts" class="table table-hover">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Duration</th>
+      <th scope="col">Interval</th>
+      <th scope="col">Progress</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>

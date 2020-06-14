@@ -1,4 +1,3 @@
-# server
 from flask import Flask
 from influxdb import InfluxDBClient
 import threading

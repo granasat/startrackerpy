@@ -313,7 +313,7 @@ class LSM303:
     def read_accel(self):
         return self.sensor.read()[0]
 
-    def read_mag(self, string=False):
+    def read_mag(self):
         return self.sensor.read()[1]
 
 

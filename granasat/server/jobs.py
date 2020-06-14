@@ -111,6 +111,7 @@ def write_metrics():
     except Exception as e:
         print(e)
 
+
 def burst():
     logging.info("Starting burst thread")
     db = Db("data/granasat.db")
@@ -145,10 +146,11 @@ def burst():
 
         time.sleep(interval)
 
+
 if __name__ == "__main__":
     # Logging
-    format = "%(asctime)s: %(message)s"
-    logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
+    logging_format = "%(asctime)s: %(message)s"
+    logging.basicConfig(format=logging_format, level=logging.INFO, datefmt="%H:%M:%S")
     metrics = threading.Thread(target=write_metrics, args=(), daemon=True)
     burst = threading.Thread(target=burst, args=(), daemon=True)
     # Start threads

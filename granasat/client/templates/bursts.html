@@ -1,0 +1,30 @@
+{% for burst in bursts %}
+<tr>
+  <th scope="row">{{ burst['id'] }}</th>
+  <td>{{ burst['duration'] }}</td>
+  <td>{{ burst['interval'] }}</td>
+  <td>{{ burst['progress'] }}%</td>
+  <td>
+    <button id="btn-download-raw" type="button" class="btn btn-primary"
+            data-toggle="tooltip" data-placement="top" title="RAW"
+            onclick="downloadBurst({{burst['id']}}, 'raw');">
+      <i class="fas fa-images"></i>
+    </button>
+    <button id="btn-download-jpeg" type="button" class="btn btn-primary"
+            data-toggle="tooltip" data-placement="top" title="JPEG"
+            onclick="downloadBurst({{burst['id']}}, 'jpeg');">
+      <i class="fas fa-images"></i>
+    </button>
+    <button id="btn-download-mat" type="button" class="btn btn-primary"
+            data-toggle="tooltip" data-placement="top" title="Matlab"
+            onclick="downloadBurst({{burst['id']}}, 'mat');">
+      <i class="fas fa-cloud-download-alt" ></i>
+    </button>
+    <button id="btn-delete-burst" type="button" class="btn btn-primary"
+            data-toggle="tooltip" data-placement="top" title="Delete"
+            onclick="deleteBurst({{burst['id']}});">
+      <i class="fas fa-trash-alt" ></i>
+    </button>
+  </td>
+</tr>
+{% endfor %}

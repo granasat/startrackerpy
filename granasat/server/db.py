@@ -31,6 +31,19 @@ class Db():
 
         return c.lastrowid
 
+    def get_burst(self, burst_id):
+        res = []
+        conn = sqlite3.connect(self._db)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute("SELECT * from burst WHERE id=?", str(burst_id))
+        res = [r for r in c]
+        conn.close()
+
+        if len(res) == 0:
+            return []
+        return res[0]
+
     def get_bursts(self):
         res = []
         conn = sqlite3.connect(self._db)
@@ -42,15 +55,15 @@ class Db():
 
         return res
 
-    def delete_burst(self, id):
+    def delete_burst(self, burst_id):
         conn = sqlite3.connect(self._db)
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
-        c.execute("DELETE from burst WHERE id=?", id)
+        c.execute("DELETE from burst WHERE id=?", str(burst_id))
         conn.commit()
         conn.close()
 
-    def update_burst_progress(self, id, progress):
+    def update_burst_progress(self, burst_id, progress):
         conn = sqlite3.connect(self._db)
         c = conn.cursor()
         if progress == 100:
@@ -59,7 +72,7 @@ class Db():
         else:
             query = "UPDATE burst SET progress={}, updated=datetime('now','localtime') " + \
                 "WHERE id={}"
-        query = query.format(progress, id)
+        query = query.format(progress, burst_id)
         c.execute(query)
         conn.commit()
         conn.close()
