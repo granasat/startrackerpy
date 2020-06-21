@@ -1,17 +1,24 @@
-import cv2
 import base64
 import time
+import zipfile
+import os
+import pathlib
+import cv2
 # import scipy.io
-from server import app, cam
-from flask import render_template, jsonify, request
+from server import app
+from flask import render_template, jsonify, request, send_file
 from server.cam import Cam
 from server.metrics import Metrics
 from server.sensors import DS1621, LSM303, CPU_SENSOR
 from server.db import Db
+from io import BytesIO
 
 
 CAM = Cam()
-DB = Db("server/data/granasat.db")
+# Current file Path
+FILE_PATH = pathlib.Path(__file__).parent.absolute()
+DB = Db(f"{FILE_PATH}/data/granasat.db")
+
 
 @app.route("/")
 def index():
@@ -35,7 +42,7 @@ def current_frame():
 
     CAM.lock_acquire()
     CAM.set_camera_params(cam_params)
-    ret, frame = CAM.read()
+    _, frame = CAM.read()
     CAM.lock_release()
     # Resize image to 1024x768
     frame = cv2.resize(frame, (1024, 768), cv2.INTER_AREA)
@@ -52,6 +59,7 @@ def current_frame():
     #     as_attachment=True,
     #     attachment_filename='current.jpg')
 
+
 @app.route("/current-frame-tiff")
 def current_frame_tiff():
     """ Returns a base64 string with the data of an image.
@@ -66,9 +74,9 @@ def current_frame_tiff():
     }
     CAM.lock_acquire()
     CAM.set_camera_params(cam_params)
-    # Given some time to set the camera parameters
+    # Give some time to set the camera parameters
     time.sleep(1.5)
-    ret, frame = CAM.read()
+    _, frame = CAM.read()
     cv2.imwrite('test.TIFF', frame)
     CAM.lock_release()
 
@@ -100,8 +108,8 @@ def get_monitor_data():
     data = {
         'cpu-temp': str(cpu_sensor.read_temp()),
         'camera-temp': camera_temp,
-        'accelerometer': lsm_sensor.read_accel(string=True),
-        'magnetometer': lsm_sensor.read_mag(string=True)
+        'accelerometer': lsm_sensor.read_accel(),
+        'magnetometer': lsm_sensor.read_mag()
     }
 
     return jsonify(data)
@@ -128,7 +136,7 @@ def queue_burst():
     gain = int(request.args.get('gain'))
     exposure = int(request.args.get('exposure'))
 
-    if duration / interval > 600:
+    if int(duration) / int(interval) > 600:
         return jsonify({
             'result': 'error',
             'id': -1,
@@ -136,10 +144,60 @@ def queue_burst():
         })
 
     # Add a row to queue the burst
-    id = DB.insert_burst(duration, interval, brightness, gamma, gain, exposure)
+    row_id = DB.insert_burst(duration, interval, brightness, gamma,
+                             gain, exposure)
 
     return jsonify({
         'result': 'ok',
-        'id': id,
+        'id': row_id,
         'msg': 'The burst has been queued'
     })
+
+
+@app.route("/get-bursts")
+def get_bursts():
+    """Returns an html table with the burst retrieved from the DB.
+    """
+    bursts = DB.get_bursts()
+    return render_template('bursts.html', bursts=bursts)
+
+
+@app.route("/download-burst")
+def download_burst():
+    """Returns an html table with the burst retrieved from the DB.
+    """
+    images_path = "server/data/bursts"
+    burst_id = int(request.args.get('burstId'))
+    burst_format = request.args.get('format')
+    burst = DB.get_burst(burst_id)
+    files = int(burst['duration'] / burst['interval'])
+
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w') as zf:
+        for i in range(1, files+1):
+            image_name = "{}/{}_{}.TIFF".format(images_path, burst_id, i)
+            image_data = cv2.imread(image_name)
+            image_bytes = image_data.tobytes()
+            data = zipfile.ZipInfo("{}_{}.TIFF".format(burst_id, i))
+            data.date_time = time.localtime(time.time())[:6]
+            data.compress_type = zipfile.ZIP_DEFLATED
+            zf.writestr(data, image_bytes)
+    memory_file.seek(0)
+    attachment_name = "burst_{}_{}.zip".format(burst_id, burst_format)
+
+    return send_file(memory_file, attachment_filename=attachment_name,
+                     as_attachment=True)
+
+
+@app.route("/delete-burst")
+def delete_burst():
+    images_path = "server/data/bursts"
+    burst_id = int(request.args.get('burstId'))
+    burst = DB.get_burst(burst_id)
+    files = int(burst['duration'] / burst['interval'])
+    for i in range(1, files+1):
+        image_name = "{}/{}_{}.TIFF".format(images_path, burst_id, i)
+        os.remove(image_name)
+    DB.delete_burst(burst_id)
+
+    return "Done"

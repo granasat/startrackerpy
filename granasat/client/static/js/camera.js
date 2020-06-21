@@ -16,12 +16,20 @@ var camera = function(){
     // Get frame binding
     $("#btn-frame").click(getFrame);
 
+    // Queue burst binding
+    $("#btn-queue-burst").click(queueBurst);
+
     // Get camera parameters
     getCameraParams();
+
+    // Get bursts
+    getBursts();
 };
 
 
-// Helper functions
+/**
+ * Get a frame and update the main image element with its data.
+ */
 function getFrame(){
     $.ajax({
         url: "/current-frame",
@@ -64,16 +72,84 @@ function getFrame(){
     });
 };
 
-// Ajax call to get the current parameters of the camera.
+/**
+ * Get current camera parameters and update the DOM with their values.
+ */
 function getCameraParams(){
-        $.ajax({
-            url: "/get-camera-params",
-            success: function(data){
-                $.each(data, function(key, value){
-                    $("#" + key + "-input").val(value);
-                    $("#" + key + "-value").html(value);
-                });
-            },
-            cache: false
-        });
-    };
+    $.ajax({
+        url: "/get-camera-params",
+        success: function(data){
+            $.each(data, function(key, value){
+                $("#" + key + "-input").val(value);
+                $("#" + key + "-value").html(value);
+            });
+        },
+        cache: false
+    });
+};
+
+/**
+ * Get the list of bursts and update the DOM.
+ */
+function getBursts(){
+    $.ajax({
+        url: "/get-bursts",
+        success: function(data){
+            $("#table-bursts > tbody").html(data);
+        },
+        cache: false,
+        type: "get"
+    });
+};
+
+/**
+ * Download a burst.
+ *
+ * @param {Number} burstId ID of the burst to be downloaded.
+ * @param {String} format Valid formats are: raw, jpeg or matlab.
+ */
+function downloadBurst(burstId, format){
+    window.location = `download-burst?burstId=${burstId}&format=${format}`;
+};
+
+/**
+ * Delete a burst.
+ *
+ * @param {Number} burstId ID of the burst to be deleted.
+ */
+function deleteBurst(burstId){
+    $.ajax({
+        url: "/delete-burst",
+        success: function(){
+            getBursts();
+        },
+        cache: false,
+        data: {
+            burstId: burstId
+        },
+        type: "get"
+    });
+};
+
+
+/**
+ * Queue a burst, reading the current camera values from the DOM.
+ */
+function queueBurst(){
+    $.ajax({
+        url: "/queue-burst",
+        success: function(){
+            getBursts();
+        },
+        cache: false,
+        data: {
+            duration: $('#input-duration').val(),
+            interval: $('#input-interval').val(),
+            brightness: $("#brightness-input").val(),
+            gamma: $("#gamma-input").val(),
+            gain: $("#gain-input").val(),
+            exposure: $("#exposure-input").val()
+        },
+        type: "get"
+    });
+};

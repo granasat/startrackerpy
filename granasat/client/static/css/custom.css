@@ -89,3 +89,9 @@ button:hover,
   border:none !important;
   box-shadow: none;
 }
+
+/* Vertical alignemnt for bootstrap table rows. */
+.table > tbody > tr > td,
+.table > tbody > tr > th {
+  vertical-align: middle;
+}
