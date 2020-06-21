@@ -77,7 +77,7 @@ def current_frame_tiff():
     # Give some time to set the camera parameters
     time.sleep(1.5)
     _, frame = CAM.read()
-    cv2.imwrite('test.TIFF', frame)
+    cv2.imwrite('test.tiff', frame)
     CAM.lock_release()
 
     return "Done"
@@ -87,7 +87,6 @@ def current_frame_tiff():
 def get_camera_params():
     """ Returns a JSON with the current parameters of the camera.
     """
-    # TODO check if it is possible without lock
     params = CAM.get_camera_params()
 
     return jsonify(params)
@@ -175,10 +174,14 @@ def download_burst():
     memory_file = BytesIO()
     with zipfile.ZipFile(memory_file, 'w') as zf:
         for i in range(1, files+1):
-            image_name = "{}/{}_{}.TIFF".format(images_path, burst_id, i)
+            image_name = "{}/{}_{}.tiff".format(images_path, burst_id, i)
             image_data = cv2.imread(image_name)
+            if burst_format == "jpeg":
+                _, image_data = cv2.imencode(".jpeg", image_data)
+            elif burst_format == "mat":
+                pass
             image_bytes = image_data.tobytes()
-            data = zipfile.ZipInfo("{}_{}.TIFF".format(burst_id, i))
+            data = zipfile.ZipInfo("{}_{}.{}".format(burst_id, i, burst_format))
             data.date_time = time.localtime(time.time())[:6]
             data.compress_type = zipfile.ZIP_DEFLATED
             zf.writestr(data, image_bytes)
@@ -196,7 +199,7 @@ def delete_burst():
     burst = DB.get_burst(burst_id)
     files = int(burst['duration'] / burst['interval'])
     for i in range(1, files+1):
-        image_name = "{}/{}_{}.TIFF".format(images_path, burst_id, i)
+        image_name = "{}/{}_{}.tiff".format(images_path, burst_id, i)
         os.remove(image_name)
     DB.delete_burst(burst_id)
 

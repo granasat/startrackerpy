@@ -163,8 +163,8 @@ class Jobs:
                 cam.set_camera_params(cam_params)
                 for i in range(1, frames+1):
                     _, frame = cam.read()
-                    img_name = "{}/{}_{}.TIFF".format(images_path, burst['id'],
-                                                      i)
+                    img_name = "{}/{}_{}.tiff".format(images_path,
+                                                      burst['id'], i)
                     cv2.imwrite(img_name, frame)
                     db.update_burst_progress(burst['id'], int(i*100/frames))
                     time.sleep(burst['interval'])
