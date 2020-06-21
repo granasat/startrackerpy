@@ -1,8 +1,8 @@
 granasat/influxdb/data/*
 **/__pycache__
 **/.pyc
-granasat/server/data/*
-granasat/docs/_build/*
-!granasat/docs/_build/.gitkeep
+granasat/server/data/**
+granasat/docs/_build/**
+!granasat/docs/_static/.gitkeep
 granasat/.log
 .log/

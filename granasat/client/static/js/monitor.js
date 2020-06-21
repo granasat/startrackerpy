@@ -43,7 +43,7 @@ var monitor = function(){
  * @param {String} name chat's name.
  * @param {String} title title's to show in the chart.
  *
- * @return {Function} function to update the chart with new data.
+ * @return {Function} **update()** the chart with new data.
  */
 function createChart(name, title) {
     var ctx = $('#chart-' + name);
