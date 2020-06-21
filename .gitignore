@@ -3,6 +3,8 @@ granasat/influxdb/data/*
 **/.pyc
 granasat/server/data/**
 granasat/docs/_build/**
+granasat/docs/_static/**
+!granasat/docs/_build/.gitkeep
 !granasat/docs/_static/.gitkeep
 granasat/.log
 .log/

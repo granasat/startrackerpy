@@ -61,3 +61,6 @@ html_static_path = ['_static']
 pygments_style = 'sphinx'
 
 js_source_path = '../client/static/js'
+
+
+master_doc = 'index'
