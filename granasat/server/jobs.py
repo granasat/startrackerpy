@@ -142,7 +142,7 @@ class Jobs:
         FILE_PATH = Path(__file__).parent.absolute()
         db = Db(f"{FILE_PATH}/data/granasat.db")
         cam = Cam()
-        images_path = "data/bursts"
+        images_path = f"{FILE_PATH}/data/bursts"
         Path(images_path).mkdir(parents=True, exist_ok=True)
 
         while True:
