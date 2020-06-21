@@ -37,7 +37,14 @@ var monitor = function(){
     $('#btn-refresh-metrics').trigger('click');
 };
 
-// Create a new Chart and return its update closure.
+/**
+ * Create a chart.
+ *
+ * @param {String} name chat's name.
+ * @param {String} title title's to show in the chart.
+ *
+ * @return {Function} function to update the chart with new data.
+ */
 function createChart(name, title) {
     var ctx = $('#chart-' + name);
     var chart = new Chart(ctx, {
@@ -101,6 +108,13 @@ function createChart(name, title) {
     return update;
 };
 
+/**
+ * Request metrics of the last minutes given as argument and update the charts
+ * given as argument.
+ *
+ * @param {String} charts chat's name.
+ * @param {String} minutes title's to show in the chart.
+ */
 function refreshMetrics(charts, minutes){
     $.ajax({
         url: "/get-metrics/" + minutes,

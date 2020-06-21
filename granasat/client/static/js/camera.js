@@ -27,7 +27,9 @@ var camera = function(){
 };
 
 
-// Helper functions
+/**
+ * Get a frame and update the main image element with its data.
+ */
 function getFrame(){
     $.ajax({
         url: "/current-frame",
@@ -70,7 +72,9 @@ function getFrame(){
     });
 };
 
-// Ajax call to get the current parameters of the camera.
+/**
+ * Get current camera parameters and update the DOM with their values.
+ */
 function getCameraParams(){
     $.ajax({
         url: "/get-camera-params",
@@ -84,7 +88,9 @@ function getCameraParams(){
     });
 };
 
-// Ajax call to get the bursts
+/**
+ * Get the list of bursts and update the DOM.
+ */
 function getBursts(){
     $.ajax({
         url: "/get-bursts",
@@ -96,12 +102,21 @@ function getBursts(){
     });
 };
 
-// Downloads the given burst id in the given format
+/**
+ * Download a burst.
+ *
+ * @param {Number} burstId ID of the burst to be downloaded.
+ * @param {String} format Valid formats are: raw, jpeg or matlab.
+ */
 function downloadBurst(burstId, format){
     window.location = `download-burst?burstId=${burstId}&format=${format}`;
 };
 
-// Deletes the given burst id
+/**
+ * Delete a burst.
+ *
+ * @param {Number} burstId ID of the burst to be deleted.
+ */
 function deleteBurst(burstId){
     $.ajax({
         url: "/delete-burst",
@@ -117,7 +132,9 @@ function deleteBurst(burstId){
 };
 
 
-// Queue a new burst with the input duration and interval
+/**
+ * Queue a burst, reading the current camera values from the DOM.
+ */
 function queueBurst(){
     $.ajax({
         url: "/queue-burst",

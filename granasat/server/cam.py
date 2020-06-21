@@ -1,21 +1,11 @@
 import os
 import cv2
 from filelock import FileLock
-
-
-# TODO remove it
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args,
-                                                                 **kwargs)
-        return cls._instances[cls]
+import numpy
 
 
 class Cam():
-    """ .
+    """Class to control the camera device
     """
     params_dict = {
         'brightness': cv2.CAP_PROP_BRIGHTNESS,
@@ -28,14 +18,22 @@ class Cam():
         self._id = 0
         self._lock = FileLock("/tmp/cam.lock")
 
-    def lock_acquire(self, timeout=10):
+    def lock_acquire(self, timeout=10) -> None:
+        """Acquire a lock to use the camera device
+
+        :param timeout: Time to wait for the lock; defaults to 10 seconds.
+        """
         self._lock.acquire(timeout=timeout)
 
-    def lock_release(self):
+    def lock_release(self) -> None:
+        """Release the lock
+        """
         self._lock.release()
 
-    def read(self):
-        """ Returns the cv2 camera object
+    def read(self) -> (int, numpy.ndarray):
+        """Returns the cv2 camera object
+
+        :return: (ret, frame)
         """
         cam = cv2.VideoCapture(self._id)
         cam.set(cv2.CAP_PROP_BUFFERSIZE, 1)
@@ -44,8 +42,10 @@ class Cam():
 
         return ret, frame
 
-    def get_camera_params(self):
-        """ Returns the parameters read from the camera
+    def get_camera_params(self) -> {}:
+        """Returns the parameters read from the camera
+
+        :return: Dictionary with the parameters' values
         """
         cam = cv2.VideoCapture(self._id)
         response = {
@@ -57,7 +57,11 @@ class Cam():
 
         return response
 
-    def set_camera_params(self, params):
+    def set_camera_params(self, params) -> None:
+        """Set camera parameters
+
+        :param params: Dictionary with the parameters to set
+        """
         cam = cv2.VideoCapture(self._id)
         cam.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1.0)

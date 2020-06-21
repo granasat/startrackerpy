@@ -62,13 +62,14 @@ services:
     container_name: jobs
     restart: always
     privileged: true
-    working_dir: /app/server
+    working_dir: /app
     command: python jobs.py
     logging:
       options:
         max-size: "10m"
     volumes:
       - ./granasat/server:/app/server
+      - ./granasat/jobs.py:/app/jobs.py
 
     depends_on:
       - influxdb

@@ -9,19 +9,22 @@
 # We have also added the LSM303 library with a class wrapper.
 
 from __future__ import division  # to calculate a float from integers
-import smbus
 import time
-import Adafruit_LSM303
 import os
+import smbus
+import Adafruit_LSM303
 
 
 class DS1621:
-    """ Example:
-    from lib.sensors import DS1621
+    """Camera sensor DS1621
 
-    ds_sensor = DS1621(1, 0x48)
-    ds_sensor.wake_up()
-    ds_sensor.read_config()
+    Example::
+
+     from lib.sensors import DS1621
+
+     ds_sensor = DS1621(1, 0x48)
+     ds_sensor.wake_up()
+     ds_sensor.read_config()
     """
     # DS1621 commands
     START = 0xEE
@@ -46,13 +49,18 @@ class DS1621:
     CONT_MODE = 0xFE
     CLR_TL_TH = 0x9F
 
-    def __init__(self, bus_id, sensor):
+    def __init__(self, bus_id: int, sensor: int) -> None:
         self.bus = smbus.SMBus(bus_id)
         self.sensor = sensor
 
     # assist functions
-    def twos_comp(self, byte):
+    @classmethod
+    def twos_comp(cls, byte: bytes) -> int:
         """ Input byte in two's complement is returned as signed integer.
+
+
+        :param byte: byte to perform the two's complement to.
+        :return: signed integer
         """
         if len(bin(byte)[2:]) > 8:
             # shouldn't ever get here
@@ -63,10 +71,15 @@ class DS1621:
 
         return ~(255 - byte) if byte > 127 else byte
 
-    def decode_DS(self, word):
+    def decode_DS(self, word: bytes) -> int:
         """ 2-byte data from DS1621 is received as LSB MSB
+
         MSB is a two's complement number from -55 to +125
         If leftmost bit from LSB is set, add .5 to reading.
+
+        :param word: 2-byte data from DS1621
+
+        :return: two's complement number from -55 to +125
         """
 
         LSB = word // 256  # integer division with two
@@ -75,9 +88,15 @@ class DS1621:
 
         return value + .5 if LSB == 128 else value + .0
 
-    def encode_DS(self, num):
+    @classmethod
+    def encode_DS(cls, num: float) -> bytes:
         """ 2-byte thermostat setting sent to DS1621
+
         in same format as data received, see decode_DS, above.
+
+        :param num: float number to encode
+
+        :return: Bytes of the encoded number
         """
         # warn for out of range and set within range.
         if num < -55:
@@ -88,7 +107,7 @@ class DS1621:
             num = 125
 
         # round off to nearest .5
-        num = round(num*2)/2.0
+        num = round(num * 2) / 2.0
         MSB = int(num)
         decimal = num - MSB
 
@@ -96,93 +115,67 @@ class DS1621:
         # data is sent LSB MSB
         if decimal == 0:
             return MSB
-        else:
-            if MSB > 0:
-                return MSB | 0x8000
-            else:
-                return (MSB - 1) & 0x80FF
+        if MSB > 0:
+            return MSB | 0x8000
+
+        return (MSB - 1) & 0x80FF
 
     # General read function, also updates a register
-    def read_degreesC_byte(self):
+    def read_degreesC_byte(self) -> bytes:
         """ Returns temperature in degrees Celsius as integer
+
+        :return: Celsius degrees bytes
         """
         self.bus.read_byte_data(self.sensor, self.START)
         degreesC_byte = self.twos_comp(
-            self.bus.read_byte_data(self.sensor, self.READ_TEMP)
-        )
+            self.bus.read_byte_data(self.sensor, self.READ_TEMP))
 
         return degreesC_byte
 
     # Oneshot read functions all give a START command.
-    def read_degreesC_all_oneshot(self):
-        """returns temperature in degrees Celsius,
-        as integer,
-        as same reading with added half degree precision
-        and with high(er) resolution, as per DS1621 datasheet """
+    def read_degreesC_all_oneshot(self) -> (bytes, bytes, float):
+        """returns temperature in different formats
+
+        :return: (degress bytes, degress word, degress float)
+        """
 
         self.bus.read_byte_data(self.sensor, self.START)
 
         degreesC_byte = self.twos_comp(
-            self.bus.read_byte_data(self.sensor, self.READ_TEMP)
-        )
+            self.bus.read_byte_data(self.sensor, self.READ_TEMP))
         degreesC_word = self.decode_DS(
-            self.bus.read_word_data(self.sensor, self.READ_TEMP)
-        )
+            self.bus.read_word_data(self.sensor, self.READ_TEMP))
         slope = self.bus.read_byte_data(self.sensor, self.READ_SLOPE)
         counter = self.bus.read_byte_data(self.sensor, self.READ_COUNTER)
-        degreesC_HR = degreesC_byte - .25 + (slope - counter)/slope
+        degreesC_HR = degreesC_byte - .25 + (slope - counter) / slope
         # ~ print slope, counter, slope - counter, (slope - counter)/slope
 
         return degreesC_byte, degreesC_word, degreesC_HR
 
-    def read_degreesC_hiRes_oneshot(self):
-        """returns temperature as high-res value, as per DS1621 datasheet"""
+    def read_degreesC_hiRes_oneshot(self) -> float:
+        """Returns temperature as high-res value, as per DS1621 datasheet
+
+        :return: high resolution temp
+        """
 
         self.bus.read_byte_data(self.sensor, self.START)
 
         degreesC_byte = self.twos_comp(
-            self.bus.read_byte_data(self.sensor, self.READ_TEMP)
-        )
+            self.bus.read_byte_data(self.sensor, self.READ_TEMP))
 
         slope = self.bus.read_byte_data(self.sensor, self.READ_SLOPE)
         counter = self.bus.read_byte_data(self.sensor, self.READ_COUNTER)
-        degreesC_HR = degreesC_byte - .25 + (slope - counter)/slope
+        degreesC_HR = degreesC_byte - .25 + (slope - counter) / slope
 
         return degreesC_HR
-
-    # Continuous read function DOES NOT give a START command
-    # the START command for Continuous mode is given by set_mode(Continous)
-    def read_degreesC_continous(self):
-        """returns temperature in degrees Celsius,
-        as integer,
-        as same reading with added half degree precision
-        and with high(er) resolution, as per DS1621 datasheet """
-
-        degreesC_byte = self.twos_comp(
-            self.bus.read_byte_data(self.sensor, self.READ_TEMP)
-        )
-        degreesC_word = self.decode_DS(
-            self.bus.read_word_data(self.sensor, self.READ_TEMP)
-        )
-        slope = self.bus.read_byte_data(self.sensor, self.READ_SLOPE)
-        counter = self.bus.read_byte_data(self.sensor, self.READ_COUNTER)
-        degreesC_HR = degreesC_byte - .25 + (slope - counter)/slope
-
-        return degreesC_byte, degreesC_word, degreesC_HR
-
-    # Continuous mode needs a stop-conversion command
-    def stop_conversion(self):
-        self.bus.read_byte_data(self.sensor, self.STOP)
 
     def read_config(self):
         Conf = self.bus.read_byte_data(self.sensor, self.ACCESS_CONFIG)
 
         TH = self.decode_DS(
-            self.bus.read_word_data(self.sensor, self.ACCESS_TH)
-        )
+            self.bus.read_word_data(self.sensor, self.ACCESS_TH))
         TL = self.decode_DS(
-            self.bus.read_word_data(self.sensor, self.ACCESS_TL)
-        )
+            self.bus.read_word_data(self.sensor, self.ACCESS_TL))
 
         if Conf & self.POL_HI:
             level, device = 'HIGH', 'cooler'
@@ -197,29 +190,28 @@ class DS1621:
         \tThermostat output is Active {level} (1 turns the {device} on)
         \tMeasuring mode is {mode}'''
 
-        print(Rpt.format(
-            sensor=hex(self.sensor),
-            convstat='done' if Conf & self.DONE else 'in process',
-            have_th='HAVE' if Conf & self.TH_BIT else 'have NOT',
-            th=TH,
-            have_tl='HAVE' if Conf & self.TL_BIT else 'have NOT',
-            tl=TL,
-            busy='BUSY' if Conf & self.NVB else 'not busy',
-            level=level,
-            device=device,
-            mode='One-Shot' if Conf & self.ONE_SHOT else 'Continuous',
-        ))
+        print(
+            Rpt.format(
+                sensor=hex(self.sensor),
+                convstat='done' if Conf & self.DONE else 'in process',
+                have_th='HAVE' if Conf & self.TH_BIT else 'have NOT',
+                th=TH,
+                have_tl='HAVE' if Conf & self.TL_BIT else 'have NOT',
+                tl=TL,
+                busy='BUSY' if Conf & self.NVB else 'not busy',
+                level=level,
+                device=device,
+                mode='One-Shot' if Conf & self.ONE_SHOT else 'Continuous',
+            ))
 
         return Conf, TH, TL
 
     def get_thermostat(self):
         """returns low and high thermostat settings"""
         low_therm = self.decode_DS(
-            self.bus.read_word_data(self.sensor, self.ACCESS_TL)
-        )
+            self.bus.read_word_data(self.sensor, self.ACCESS_TL))
         hi_therm = self.decode_DS(
-            self.bus.read_word_data(self.sensor, self.ACCESS_TH)
-        )
+            self.bus.read_word_data(self.sensor, self.ACCESS_TH))
 
         return low_therm, hi_therm
 
@@ -229,12 +221,11 @@ class DS1621:
         # wait for write to Non-Volatile Memory to finish
         while newConf & self.NVB:
             newConf = self.bus.read_byte_data(self.sensor, self.ACCESS_CONFIG)
-
         return
 
-    def write_conf_byte(self, byte):
+    def write_conf_byte(self, byte: bytes):
         self.bus.write_byte_data(self.sensor, self.ACCESS_CONFIG, byte)
-        self.wait_NVM(self.bus, self.sensor)
+        self.wait_NVM()
 
         return
 
@@ -296,8 +287,7 @@ class DS1621:
         reading = self.read_degreesC_all_oneshot()
 
         return '\tSensor name: {:8} {:3} | {:5.1f} | {:7.3f}'.format(
-            name, *reading
-        )
+            name, *reading)
 
     def wake_up(self):
         """ Device always starts in Idle mode, first reading is not usable.
@@ -307,19 +297,39 @@ class DS1621:
 
 
 class LSM303:
-    def __init__(self):
+    """Wrapper of Adafruit_LSM303 class
+
+    Exports two functions to easily read the magnetometer and accelerometer
+    metrics.
+    """
+    def __init__(self) -> None:
         self.sensor = Adafruit_LSM303.LSM303()
 
-    def read_accel(self):
+    def read_accel(self) -> (float, float, float):
+        """Reads accelerometer values
+
+        :return: x,y,z values
+        """
         return self.sensor.read()[0]
 
-    def read_mag(self):
+    def read_mag(self) -> (float, float, float):
+        """Reads magnetometer values
+
+        :return: x,y,z values
+        """
         return self.sensor.read()[1]
 
 
 class CPU_SENSOR:
+    """Wrapper to read CPU sensor
+
+    It requires the binary `vcgencmd` to be present in PATH
+    """
     def read_temp(self):
-        """ Returns the CPU temperature"""
+        """Read CPU temperature
+
+        :return: cpu temp float precission
+        """
         temp = os.popen("vcgencmd measure_temp").readline()
 
-        return (float(temp.replace("temp=", "")[0:4]))
+        return float(temp.replace("temp=", "")[0:4])

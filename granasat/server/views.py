@@ -1,8 +1,9 @@
-import cv2
 import base64
 import time
 import zipfile
 import os
+import pathlib
+import cv2
 # import scipy.io
 from server import app
 from flask import render_template, jsonify, request, send_file
@@ -14,7 +15,9 @@ from io import BytesIO
 
 
 CAM = Cam()
-DB = Db("server/data/granasat.db")
+# Current file Path
+FILE_PATH = pathlib.Path(__file__).parent.absolute()
+DB = Db(f"{FILE_PATH}/data/granasat.db")
 
 
 @app.route("/")
@@ -39,7 +42,7 @@ def current_frame():
 
     CAM.lock_acquire()
     CAM.set_camera_params(cam_params)
-    ret, frame = CAM.read()
+    _, frame = CAM.read()
     CAM.lock_release()
     # Resize image to 1024x768
     frame = cv2.resize(frame, (1024, 768), cv2.INTER_AREA)
@@ -55,6 +58,7 @@ def current_frame():
     #     mimetype='image/jpeg',
     #     as_attachment=True,
     #     attachment_filename='current.jpg')
+
 
 @app.route("/current-frame-tiff")
 def current_frame_tiff():
@@ -72,7 +76,7 @@ def current_frame_tiff():
     CAM.set_camera_params(cam_params)
     # Give some time to set the camera parameters
     time.sleep(1.5)
-    ret, frame = CAM.read()
+    _, frame = CAM.read()
     cv2.imwrite('test.TIFF', frame)
     CAM.lock_release()
 
