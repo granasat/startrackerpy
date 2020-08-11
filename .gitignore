@@ -1,6 +1,7 @@
 granasat/influxdb/data/*
 **/__pycache__
 **/.pyc
+**/.ipynb_checkpoints
 granasat/server/data/**
 granasat/docs/_build/**
 granasat/docs/_static/**
