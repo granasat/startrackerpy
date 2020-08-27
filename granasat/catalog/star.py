@@ -15,6 +15,15 @@ class Star:
         self.vmag = vmag
         self._neighbours = []
 
+    def __eq__(self, other):
+        return self.hip_number == other.hip_number
+
+    def __repr__(self):
+        return self.hip_number
+
+    def __str__(self):
+        return self.hip_number
+
     def add_neighbour(self, star):
         self._neighbours.append(star)
 
@@ -24,8 +33,24 @@ class Star:
     def get_cartesian_coords(self):
         """Converts the given ra and dec to its cartesian coordinates"""
         r = 1
-        x = r * math.sin(np.deg2rad(self.dec)) * math.cos(np.deg2rad(self.ra))
-        y = r * math.sin(np.deg2rad(self.dec)) * math.sin(np.deg2rad(self.ra))
-        z = r * math.cos(np.deg2rad(self.dec))
+        dec = self.dec + 90
+        x = r * math.sin(np.deg2rad(dec)) * math.cos(np.deg2rad(self.ra))
+        y = r * math.sin(np.deg2rad(dec)) * math.sin(np.deg2rad(self.ra))
+        z = r * math.cos(np.deg2rad(dec))
 
         return [x, y, z]
+
+    def get_distance(self, star):
+        """Returns the angular distance to the given star"""
+        if self == star:
+            return 0
+
+        a_car = self.get_cartesian_coords()
+        b_car = star.get_cartesian_coords()
+        dab = math.degrees(math.acos(a_car[0] * b_car[0] +
+                                     a_car[1] * b_car[1] +
+                                     a_car[2] * b_car[2]))
+        return dab
+
+    # def get_ra_dec_hms(self):
+        # ra =
