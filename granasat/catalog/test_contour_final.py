@@ -151,8 +151,6 @@ for unitary in unitaries[:5]:
     print(f'Unitary: [x: {unitary[0]}, y: {unitary[1]}, z: {unitary[2]}]')
 
 
-
-
 for real_star in real_stars:
     center = (real_star.centroid.x, real_star.centroid.y)
     radius = 10

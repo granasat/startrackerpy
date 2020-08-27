@@ -1,5 +1,7 @@
 import math
 import numpy as np
+from astropy.coordinates import SkyCoord
+from astropy import units as u
 
 
 class Star:
@@ -7,6 +9,7 @@ class Star:
     save a list of neighboors..."""
     def __init__(self, hip_number, ra, dec, promora, promodec, parallax, vmag):
         self.hip_number = hip_number
+        self.name = ""
         self.ra = ra
         self.dec = dec
         self.promora = promora
@@ -52,5 +55,5 @@ class Star:
                                      a_car[2] * b_car[2]))
         return dab
 
-    # def get_ra_dec_hms(self):
-        # ra =
+    def set_name(self, name):
+        self.name = name

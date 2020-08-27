@@ -20,6 +20,8 @@ class ImageStar:
         self.perimeter = perimeter
         self.area = area
         self.real_star = None
+        self.wcs_coords = None
+        self.labeled = False
 
     def __eq__(self, other):
         if self.real_star is None or other.real_star is None:
@@ -60,3 +62,15 @@ class ImageStar:
     def set_real_star(self, star):
         """Match this ImageStar with a real Star"""
         self.real_star = star
+
+    def set_wcs_coords(self, coords):
+        self.wcs_coords = coords
+
+    def get_wcs_coords(self):
+        return self.wcs_coords
+
+    def set_labeled(self):
+        self.labeled = True
+
+    def is_labeled(self):
+        return self.labeled

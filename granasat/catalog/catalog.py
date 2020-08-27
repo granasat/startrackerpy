@@ -3,22 +3,25 @@ import csv
 import json
 import numpy as np
 from star import Star
-from sklearn.neighbors import KNeighborsClassifier
 from image_star import ImageStar
 
 class Catalog:
-    def __init__(self, hip_csv, guide_stars_csv, guide_neighbours_json):
+    def __init__(self, hip_csv, guide_stars_csv, guide_stars_labels_csv=None,
+                 guide_neighbours_json=None):
         self._hip_catalog = {}
+        self._guide_stars = []
         self._guide_stars_catalog = []
         self._guide_neighbours_catalog = {}
         self._fov_catalog = []
         self._load_hip_catalog(hip_csv)
         self._load_guide_stars_catalog(guide_stars_csv)
-        self._load_guide_neighbours_catalog(guide_neighbours_json)
-        self._generate_fov_catalog()
+        self._label_guide_stars(guide_stars_labels_csv)
+        if guide_neighbours_json is not None:
+            self._load_guide_neighbours_catalog(guide_neighbours_json)
+        # self.generate_fov_catalog()
 
     def _load_hip_catalog(self, hip_csv):
-        """NOTE: we add +90 degrees to the declination"""
+        """Main catalog in a dictionary and a Star object"""
         with open(hip_csv, 'r') as csv_file:
             csv_reader = csv.DictReader(csv_file)
             for row in csv_reader:
@@ -38,13 +41,20 @@ class Catalog:
                 distance = float(row["distance"])
                 lst.append([hip_a, hip_b, distance])
         self._guide_stars_catalog = np.array(lst)
+        self._guide_stars = np.unique(self._guide_stars_catalog[:, :-1])
+
+    def _label_guide_stars(self, guide_stars_labels_csv):
+        with open(guide_stars_labels_csv, 'r') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            for row in csv_reader:
+                self._hip_catalog[row['HIP_number']].set_name(row['Name'])
 
     def _load_guide_neighbours_catalog(self, json_file_path):
         with open(json_file_path, 'r') as json_file:
             data = json_file.read()
         self._guide_neighbours_catalog = json.loads(data)
 
-    def _generate_fov_catalog(self):
+    def generate_fov_catalog(self):
         for star_id in self._guide_neighbours_catalog:
             # Discard stars with less than 3 neighbours
             if len(self._guide_neighbours_catalog[star_id]) < 3:
@@ -112,19 +122,12 @@ class Catalog:
         return pairs
 
     def get_most_brightness(self, star):
-        # Given a start returns the three more brightness stars
+        """Given a start returns the three more brightness stars
+        From its neighbours"""
         stars = star.get_neighbours() + [star]
         if len(stars) < 3:
             return []
         return sorted(stars, key=lambda x: x.vmag)[:3]
-
-    def find_Knn(self, triad, k):
-        X = [star[2] for star in self._fov_catalog]
-        target = [i for i in range(0, len(X))]
-        # fit a k-nearest neighbor model to the data
-        model = KNeighborsClassifier(n_neighbors=k)
-        model.fit(X, target)
-        return model.predict([triad])
 
     def get_triplets_of_triangle(self, triangle, threshold=0.005):
         """The kernel will always be the triangle[0] ImageStar"""
@@ -144,7 +147,7 @@ class Catalog:
         pairs_a_b = self.get_pairs_by_distance(d_star1_star2-err1, d_star1_star2+err1)
         pairs_a_c = self.get_pairs_by_distance(d_star1_star3-err2, d_star1_star3+err2)
 
-        # For each star present in both paris AB and AC
+        # For each star present in both pairs AB and AC
         # Check if the other two stars are in range of
         # distance BC star2_star3
         for pair1 in pairs_a_b:
@@ -221,7 +224,8 @@ class Catalog:
         returns [[ImageStar, ImageStar], [Star, Star]]
         """
 
-        real_stars = []
+        common = []
+        news = []
         for triplet_i in triplets_a:
             for triplet_j in triplets_b:
                 if (triplet_i[0] in triplet_j and triplet_i[1] in triplet_j) or \
@@ -229,11 +233,12 @@ class Catalog:
                    (triplet_i[1] in triplet_j and triplet_i[2] in triplet_j):
                     # Add all stars from triplet_i and the new one from
                     # triplet_j
+                    common = [star for star in triplet_i if star in triplet_j]
+                    new_i = [star for star in triplet_i if star not in triplet_j]
                     new_j = [star for star in triplet_j if star not in triplet_i]
-                    real_stars += triplet_i + new_j
-                    #return real_stars
+                    news = new_i + new_j
 
-        return real_stars
+        return [common, news]
 
 
-# catalog = Catalog("./generation/out/hip_2020.csv", "./generation/out/guide_stars_2020_4.5.csv", "./generation/out/guide_stars_neighboors_4.5.json")
+# catalog = Catalog("./generation/out/hip_2000.csv", "./generation/out/guide_stars_2000_5.csv", "./generation/out/guide_stars_2000_5_labels.csv")
