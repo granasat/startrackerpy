@@ -1,9 +1,0 @@
-* Distance matching between real and image
-| Star    | HIP | RA               | DEC              |  RA degrees | DEC degrees | Pixel    |
-|---------+-----+------------------+------------------+-------------+-------------+----------|
-| Polaris |     | 02 31 49.09456   | +89 15 50.7923   | 37.95456067 | 89.26410897 | 631,507  |
-| 47Cas   |     | 02 05 07.4242273 | +77 16 52.824198 | 31.28093428 | 77.28134006 | 1150,290 |
-
-
-* From astrometry conclusions
-- The camera FOV is: 27.5 x 20.6 degrees.

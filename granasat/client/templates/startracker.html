@@ -1,0 +1,73 @@
+<div id="startracker" class="tab-pane fade" role="tabpanel">
+  <!-- Parameters -->
+  <div class="parameters">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light inner-nav">
+      <span class="navbar-brand" href="/">Parameters</span>
+    </nav>
+
+    <!-- Auto threhsold -->
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" id="auto-threshold" checked>
+      <label class="custom-control-label font-weight-bold indigo-text" for="auto-threshold">
+        Auto threshold
+      </label>
+    </div>
+
+    <!-- Label all possible guide stars -->
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" id="label-all-possible">
+      <label class="custom-control-label font-weight-bold indigo-text" for="label-all-possible">
+        Label all possible guide stars
+      </label>
+    </div>
+
+    <!-- Threshold -->
+    <div class="custom-control custom-checkbox">
+      <label class="font-weight-bold indigo-text" for="threshold">
+        Threshold
+      </label>
+      <input id="threshold" class="quantity" min="0" max="255" name="quantity" value="20" type="number">
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light inner-nav">
+      <span class="navbar-brand" href="/">Actions</span>
+    </nav>
+  </div>
+  <div class="btns-wrapper">
+    <button id="btn-process-image" type="button" class="btn btn-success">
+      <i class="fas fa-camera"></i> Process image
+    </button>
+    <button id="btn-upload-show-modal" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-upload-image">
+      <i class="fas fa-cloud-upload-alt"></i> Upload image
+    </button>
+    <!-- Hidden Modal -->
+    <div class="modal fade" id="modal-upload-image" tabindex="-1" role="dialog" aria-labelledby="granasat" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Upload Image</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="upload-file-form" method='post' action='' enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="image">Select Image</label>
+                <input id="upload-file-input" type="file" class="form-control-file" name="image">
+              </div>
+            </form>
+            <span> size must be: 1280x960</span>
+          </div>
+          <div class="modal-footer">
+            <button id="btn-upload-image-close" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="btn-upload-image">Upload</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

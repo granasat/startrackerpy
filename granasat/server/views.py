@@ -3,15 +3,19 @@ import time
 import zipfile
 import os
 import pathlib
+import uuid
+import logging
+from io import BytesIO
 import cv2
 # import scipy.io
-from server import app
+from server import app, catalog
 from flask import render_template, jsonify, request, send_file
 from server.cam import Cam
 from server.metrics import Metrics
 from server.sensors import DS1621, LSM303, CPU_SENSOR
 from server.db import Db
-from io import BytesIO
+from server.startracker.image import ImageUtils
+from pathlib import Path
 
 
 CAM = Cam()
@@ -26,12 +30,12 @@ def index():
     """
     return render_template('index.html')
 
-
 @app.route("/current-frame")
 def current_frame():
     """ Returns a base64 string with the data of an image.
     The image is taken when the function is called.
     """
+    images_path = f"{FILE_PATH}/data/images"
     # Get camera parameters
     cam_params = {
         'brightness': int(request.args.get('brightness')),
@@ -44,15 +48,18 @@ def current_frame():
     CAM.set_camera_params(cam_params)
     _, frame = CAM.read()
     CAM.lock_release()
-    # Resize image to 1024x768
-    frame = cv2.resize(frame, (1024, 768), cv2.INTER_AREA)
+    Path(images_path).mkdir(parents=True, exist_ok=True)
+    uid = uuid.uuid1()
     _, im_arr = cv2.imencode('.jpg', frame)
+    cv2.imwrite(f"{images_path}/{uid}.jpg", frame)
     im_bytes = im_arr.tobytes()
     im_b64 = base64.b64encode(im_bytes).decode("ascii")
 
     return jsonify({
         'b64_img': im_b64,
+        'uuid': f"{uid}.jpg",
     })
+
     # return send_file(
     #     io.BytesIO(im_b64),
     #     mimetype='image/jpeg',
@@ -178,8 +185,6 @@ def download_burst():
             image_data = cv2.imread(image_name)
             if burst_format == "jpeg":
                 _, image_data = cv2.imencode(".jpeg", image_data)
-            elif burst_format == "mat":
-                pass
             image_bytes = image_data.tobytes()
             data = zipfile.ZipInfo("{}_{}.{}".format(burst_id, i, burst_format))
             data.date_time = time.localtime(time.time())[:6]
@@ -194,6 +199,8 @@ def download_burst():
 
 @app.route("/delete-burst")
 def delete_burst():
+    """Deletes the burst id given as parameter, this includes all the
+    images taken by that burst."""
     images_path = "server/data/bursts"
     burst_id = int(request.args.get('burstId'))
     burst = DB.get_burst(burst_id)
@@ -204,3 +211,62 @@ def delete_burst():
     DB.delete_burst(burst_id)
 
     return "Done"
+
+
+@app.route("/upload-image", methods=["POST"])
+def upload_image():
+    """Saves the image upload by the user and returns its base64 string
+    to show it in the DOM"""
+    images_path = f"{FILE_PATH}/data/images"
+    Path(images_path).mkdir(parents=True, exist_ok=True)
+    image = request.files['image']
+    image_ext = image.filename.rsplit(".", 1)[1]
+    uid = uuid.uuid1()
+    image.save(f"{images_path}/{uid}.{image_ext}")
+    saved_image = cv2.imread(f"{images_path}/{uid}.{image_ext}")
+    _, im_arr = cv2.imencode('.jpg', saved_image)
+    im_bytes = im_arr.tobytes()
+    img_b64 = base64.b64encode(im_bytes).decode("ascii")
+
+    return jsonify({
+        'b64_img': img_b64,
+        'uuid': f"{uid}.{image_ext}",
+    })
+
+
+@app.route("/process-image")
+def process_image():
+    """Process the given image to find stars and returns
+    the image with the associated data"""
+    images_path = f"{FILE_PATH}/data/images"
+    response = {}
+    uid = request.args.get('uuid')
+    image = cv2.imread(f"{images_path}/{uid}")
+    gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray_img, (3, 3), 0)
+    threshold = ImageUtils.get_threshold(blurred, 170)
+    thresh_image = cv2.threshold(blurred, threshold, 255, cv2.THRESH_BINARY)[1]
+
+    stars = ImageUtils.get_image_stars(thresh_image, gray_img)
+    pattern = catalog.find_stars_pattern(stars[0:4], err=0.010)
+    _, im_arr = cv2.imencode('.jpg', image)
+    im_bytes = im_arr.tobytes()
+    img_b64 = base64.b64encode(im_bytes).decode("ascii")
+    response['b64_img'] = img_b64
+
+    # Histogram
+    hist = cv2.calcHist([blurred], [0], None, [256], [0, 256])
+    response['hist'] = hist.tolist()
+
+    # If a pattern was found
+    if len(pattern) > 0:
+        response['pattern'] = True
+        # Get original image with pattern drawn
+        ImageUtils.draw_pattern(image, pattern)
+        _, im_arr = cv2.imencode('.jpg', image)
+        im_bytes = im_arr.tobytes()
+        img_b64 = base64.b64encode(im_bytes).decode("ascii")
+        response['pattern_points'] = img_b64
+
+
+    return jsonify(response)

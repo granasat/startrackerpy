@@ -17,12 +17,12 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'GranaSAT'
+project = 'StarTrackerPy'
 copyright = '2020, Iris Garcia'
 author = 'Iris Garcia'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0'
+release = '1.0'
 
 
 # -- General configuration ---------------------------------------------------

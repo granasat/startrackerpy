@@ -16,6 +16,9 @@ var camera = function(){
     // Get frame binding
     $("#btn-frame").click(getFrame);
 
+    // Image upload binding
+    $("#btn-upload-image").click(uploadImage);
+
     // Queue burst binding
     $("#btn-queue-burst").click(queueBurst);
 
@@ -26,6 +29,32 @@ var camera = function(){
     getBursts();
 };
 
+/**
+ * Upload a custom user image.
+ */
+function uploadImage(){
+    var frmdata = new FormData();
+    var file = $('#upload-file-input')[0].files[0];
+    frmdata.append('image', file);
+
+    $.ajax({
+        url: "/upload-image",
+        type: "post",
+        data: frmdata,
+        contentType: false,
+        processData: false,
+        cache: false,
+        beforeSend: function(){
+            // Uploading gif?
+            console.log('Uploading....');
+        },
+        success: function(data){
+            $("#btn-upload-image-close").click();
+            $("#img-frame").attr("src","data:image/jpeg;base64," + data.b64_img);
+            $("#img-frame").attr("data-uuid", data.uuid);
+        }
+    });
+};
 
 /**
  * Get a frame and update the main image element with its data.
@@ -37,8 +66,7 @@ function getFrame(){
             // Brightness to 1
             $("#img-frame").css({filter: "brightness(1)"});
             $("#img-frame").attr("src","data:image/jpeg;base64," + data.b64_img);
-            matlab_data = data.matlab;
-            $("#btn-matlab").removeClass('disabled');
+            $("#img-frame").attr("data-uuid", data.uuid);
         },
         beforeSend: function(){
             // Brightness to 0.25

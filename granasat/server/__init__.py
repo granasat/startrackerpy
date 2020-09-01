@@ -2,9 +2,15 @@ from flask import Flask
 from influxdb import InfluxDBClient
 import threading
 from server.jobs import Jobs
+from server.startracker.catalog import Catalog
 
 lock = threading.Lock()
 influx_cli = InfluxDBClient('influxdb', 8086, 'admin', '12345', 'granasat')
+# Probably need to fix this path for docker
+catalogs_path = "./server/startracker/catalogs/out"
+catalog = Catalog(f"{catalogs_path}/hip2_2000.csv",
+                  f"{catalogs_path}/guide_stars2_2000_5.csv",
+                  f"{catalogs_path}/guide_stars2_2000_5_labels.csv")
 app = Flask(__name__, template_folder='../client/templates',
             static_folder='../client/static')
 jobs = Jobs()

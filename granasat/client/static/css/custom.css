@@ -1,15 +1,15 @@
-#img-frame {
-  border: 1px solid deepskyblue;
+#img-frame, #img-hist, #chart-histogram, #img-pattern {
+  /* display: block; */
+  border: 2px solid gray;
   width: 1024px;
   height: 768px;
+  max-width: 1024px;
+  max-height: 768px;
 }
 
 .frame, .camera, .monitor {
   margin-top: 10px;
-}
-
-.monitor, .camera  {
-  border: 1px solid deepskyblue;
+  border-left: 1px solid #dee2e6;
 }
 
 .monitor {
@@ -18,17 +18,18 @@
 
 .camera {
   margin-right: 5px;
-}
+/}
 
-.camera nav, .monitor nav {
+.camera nav, .monitor nav, .frame nav {
   margin-left: -15px;
   margin-right: -15px;
-  border-bottom: 1px solid deepskyblue;
+  /* border-bottom: 1px solid deepskyblue; */
   margin-bottom: 10px;
 }
 
 .inner-nav {
-  border-top: 1px solid deepskyblue;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
   margin-top: 10px;
 }
 
@@ -94,4 +95,12 @@ button:hover,
 .table > tbody > tr > td,
 .table > tbody > tr > th {
   vertical-align: middle;
+}
+
+
+.btn-metrics-dropdown {
+  margin-right: 5px;
+}
+#btn-refresh-metrics {
+  margin-right: 40px
 }
