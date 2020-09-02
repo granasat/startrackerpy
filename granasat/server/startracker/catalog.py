@@ -239,14 +239,12 @@ class Catalog:
 
     def _get_common_triplets(self, triplets_a, triplets_b):
         """Having two list of triplets of stars as parameters
-        return the stars which are in both triplets
+        return the stars which are in both triplets having two in common.
 
-        basically, search if for any triplet in a there is a triplet in b which
-        contains two elements of the former one. In this case we have found
-        4 real stars, 2 of them we can identify their possition in the image,
-        the other two we are not sure (50%).
+        basically, search if for any triplet in 'a' there is a triplet in 'b'
+        which contains two elements of the former one.
 
-        returns [[ImageStar, ImageStar], [Star, Star]]
+        returns List of ImageStar or empty list.
         """
 
         common = []
@@ -259,7 +257,7 @@ class Catalog:
                                                (self._guide_stars_catalog[:,0] == new_j)) |
                                               ((self._guide_stars_catalog[:,1] == new_j) &
                                                (self._guide_stars_catalog[:,0] == new_i)))
-                    if len(distance_index) > 0:
+                    if len(distance_index[0]) > 0:
                         distance = self._guide_stars_catalog[distance_index[0][0]][2]
                         common.append(triplet_i + [star for star in triplet_j if star not in triplet_i])
                 elif (triplet_i[0] in triplet_j and triplet_i[2] in triplet_j):
@@ -269,7 +267,7 @@ class Catalog:
                                                (self._guide_stars_catalog[:,0] == new_j)) |
                                               ((self._guide_stars_catalog[:,1] == new_j) &
                                                (self._guide_stars_catalog[:,0] == new_i)))
-                    if len(distance_index) > 0:
+                    if len(distance_index[0]) > 0:
                         distance = self._guide_stars_catalog[distance_index[0][0]][2]
                         common.append(triplet_i + [star for star in triplet_j if star not in triplet_i])
                 elif (triplet_i[1] in triplet_j and triplet_i[2] in triplet_j):
@@ -279,7 +277,7 @@ class Catalog:
                                                (self._guide_stars_catalog[:,0] == new_j)) |
                                               ((self._guide_stars_catalog[:,1] == new_j) &
                                                (self._guide_stars_catalog[:,0] == new_i)))
-                    if len(distance_index) > 0:
+                    if len(distance_index[0]) > 0:
                         distance = self._guide_stars_catalog[distance_index[0][0]][2]
                         common.append(triplet_i + [star for star in triplet_j if star not in triplet_i])
         return common
@@ -305,6 +303,51 @@ class Catalog:
 
         return common
 
+    def _get_missing_star_from_triplets(self, triplets, pattern):
+        """Given a list of triplets an a quad pattern, return the missing
+        star from the pattern which has all the triplet stars."""
+        for triplet in triplets:
+            from_pattern = []
+            for match in pattern:
+                if match in triplet:
+                    from_pattern.append(match)
+            if len(from_pattern) == 3:
+                for star in pattern:
+                    if star not in from_pattern:
+                        return star
+
+    def _identify_stars_pattern(self, stars, triplets, commons, pattern):
+        """Identify stars when a pattern is found."""
+        star1, star2, star3, star4 = stars
+        triplets1, triplets2, triplets3 = triplets
+        common1_2, common1_3 = commons
+
+        # We can identify 4 stars
+        if len(common1_2) > 0 and len(common1_3) > 0:
+            id_star1 = self._get_missing_star_from_triplets(triplets3, pattern)
+            id_star3 = self._get_missing_star_from_triplets(triplets2, pattern)
+            id_star4 = self._get_missing_star_from_triplets(triplets1, pattern)
+            id_star2 = self._get_missing_star_from_triplets([[id_star1,
+                                                              id_star3,
+                                                              id_star4]],
+                                                            pattern)
+            for found_id, star in zip(
+                        [id_star1, id_star2, id_star3, id_star4],
+                        [star1, star2, star3, star4]):
+                if found_id is not None:
+                    star.set_real_star(self.get_star_by_id(found_id.real_star.hip_number))
+                    star.set_identified(True)
+
+        # We can identify only star3 and star4
+        if len(common1_3) == 0:
+            id_star3 = self._get_missing_star_from_triplets(triplets2, pattern)
+            id_star4 = self._get_missing_star_from_triplets(triplets1, pattern)
+            for found_id, star in zip([id_star3, id_star4], [star3, star4]):
+                if found_id is not None:
+                    star.set_real_star(self.get_star_by_id(found_id.real_star.hip_number))
+                    star.set_identified(True)
+
+
     def find_stars_pattern(self, stars, err):
         """4 stars are needed"""
         pattern = []
@@ -317,34 +360,17 @@ class Catalog:
             triplets2 = self._get_triplets([star1, star2, star4], err=c_err)
             # Get triplets in triangle bcd
             triplets3 = self._get_triplets([star2, star3, star4], err=c_err)
+
+            # Get commons triplets
             common1_2 = self._get_common_triplets(triplets1, triplets2)
             common1_3 = self._get_common_triplets(triplets1, triplets3)
             pattern = self._get_common_quads([common1_2, common1_3])
 
             # If There is only one match, we got the solution
             if len(pattern) == 1:
-                real_vmag = []
-                img_bright = []
-                for star in pattern[0]:
-                    real_vmag.append([star, star.real_star.vmag])
-                    img_bright.append([star, star.brightness])
-                real_vmag = sorted(real_vmag, key=lambda x: x[1])
-                img_bright = sorted(img_bright, key=lambda x: x[1], reverse=True)
-                result = []
-                for i, star in enumerate(img_bright):
-                    new_star = ImageStar(star[0].centroid, star[0].brightness,
-                                         star[0].perimeter, star[0].area)
-                    new_id = real_vmag[i][0].real_star.hip_number
-                    new_star.set_real_star(self.get_star_by_id(new_id))
-                    result.append(new_star)
-
-                return result
-
-            # Get triplets in triangle bcd
-            # common2_3 = self._get_common_triplets(triplets2, triplets3)
-            # pattern = self._get_common_quads([common1_2, common1_3, common2_3])
-            # if len(pattern) >= 1:
-                # return pattern[1]
+                self._identify_stars_pattern([star1, star2, star3, star4], [triplets1, triplets2, triplets3],
+                                             [common1_2, common1_3], pattern[0])
+                return [star1, star2, star3, star4]
 
             c_err += 0.001
 
@@ -360,5 +386,3 @@ class Catalog:
                 unmatched = i
 
         return unmatched
-
-# catalog = Catalog("./generation/out/hip_2000.csv", "./generation/out/guide_stars_2000_5.csv", "./generation/out/guide_stars_2000_5_labels.csv")

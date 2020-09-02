@@ -69,8 +69,8 @@ class ImageUtils:
 
             # Calculate the intensity from the grayscale image
             mean = np.mean(gray[mask_contour])
-            # brightness = mean
-            brightness = mean**3 + area * perimeter
+            brightness = mean
+            # brightness = mean**3 + area * perimeter
 
             img_stars.append(ImageStar(centroid, brightness, perimeter, area))
 

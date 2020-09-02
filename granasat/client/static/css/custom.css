@@ -1,3 +1,17 @@
+.monitor {
+  max-width: 400px;
+
+}
+.camera {
+  max-width: 460px;
+  border-right: 1px solid #dee2e6;
+}
+
+.frame {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
 #img-frame, #img-hist, #chart-histogram, #img-pattern {
   /* display: block; */
   border: 2px solid gray;
@@ -12,13 +26,6 @@
   border-left: 1px solid #dee2e6;
 }
 
-.monitor {
-  margin-left: 5px;
-}
-
-.camera {
-  margin-right: 5px;
-/}
 
 .camera nav, .monitor nav, .frame nav {
   margin-left: -15px;

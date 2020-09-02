@@ -17,23 +17,23 @@ from server.startracker.image import ImageUtils
 
 print("Loading catalog")
 # load catalogs
-catalog = Catalog("./server/startracker/generation/out/hip_2000.csv",
-                  "./server/startracker/generation/out/guide_stars_2000_5.csv",
-                  "./server/startracker/generation/out/guide_stars_2000_5_labels.csv")
+catalog = Catalog("./server/startracker/catalogs/out/hip2_2000.csv",
+                  "./server/startracker/catalogs/out/guide_stars2_2000_5.csv",
+                  "./server/startracker/catalogs/out/guide_stars2_2000_5_labels.csv")
 print("Catalog loaded")
 
 # load the image, convert it to grayscale, blur it slightly,
 # and threshold it
 # image = cv2.imread("./server/startracker/test_images/vega_05sec.jpg")
-# image = cv2.imread("./test_images/polar_05sec.jpg")
-# image = cv2.imread("./test_images/polar_30sec.jpg")
+# image = cv2.imread("./server/startracker/test_images/polar_05sec.jpg")
+# image = cv2.imread("./server/startracker/test_images/polar_30sec.jpg")
 image = cv2.imread("./server/startracker/test_images/andromeda 05seg.jpg")
-# image = cv2.imread("./test_images/casiopea 01seg gain max.jpg")
-# image = cv2.imread("./test_images/pleyades_05sec.jpg")
+# image = cv2.imread("./server/startracker/test_images/casiopea 01seg gain max.jpg")
+# image = cv2.imread("./server/startracker/test_images/pleyades_05sec.jpg")
+# image = cv2.imread("./server/startracker/test_images/pleyades_8sec.jpg")
 # image = cv2.imread("./server/startracker/test_images/cisne_02sec.jpg")
-# image = cv2.imread("./test_images/IMG_007985.jpg")
-# image = cv2.imread("./test_images/test01.jpg")
-# image = cv2.imread("./test_images/test_artificial.png")
+# image = cv2.imread("./server/startracker/test_images/IMG_007985.jpg")
+# image = cv2.imread("./server/startracker/test_images/test01.jpg")
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # Noise reduction
 blurred = cv2.GaussianBlur(gray, (3, 3), 0)
@@ -85,12 +85,13 @@ for found_star in pattern:
     radius = 10
     cv2.circle(image, center, radius, (0, 255, 0), 1)
     center = (found_star.centroid.x - 25, found_star.centroid.y - 25)
-    cv2.putText(image, str(found_star.real_star.name), center,
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
-    pixels_x = np.append(pixels_x, found_star.centroid.x)
-    pixels_y = np.append(pixels_y, found_star.centroid.y)
-    stars_ra.append(found_star.real_star.ra)
-    stars_dec.append(found_star.real_star.dec)
+    if found_star.is_identified():
+        cv2.putText(image, str(found_star.real_star.name), center,
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
+        pixels_x = np.append(pixels_x, found_star.centroid.x)
+        pixels_y = np.append(pixels_y, found_star.centroid.y)
+        stars_ra.append(found_star.real_star.ra)
+        stars_dec.append(found_star.real_star.dec)
 
 
 stars = SkyCoord(ra=stars_ra, dec=stars_dec, unit=u.deg)
@@ -105,7 +106,7 @@ img_stars_to_label = []
 max_labels = 20
 for img_star in img_stars:
     for found_star in pattern:
-        if found_star.centroid == img_star.centroid:
+        if found_star.centroid == img_star.centroid and found_star.is_identified():
             img_star.labeled = True
     img_stars_to_label.append(img_star)
 
@@ -116,6 +117,10 @@ for img_star in img_stars:
     coords_ra, coords_dec = my_wcs.wcs_pix2world(pixel_x, pixel_y, 0)
     coords = SkyCoord(ra=coords_ra, dec=coords_dec, unit=u.deg)
     img_star.set_wcs_coords(coords)
+    if img_star.centroid.x == 197 and img_star.centroid.y == 481:
+        print(f'{coords.ra.hms} {coords.dec.dms}')
+    if img_star.centroid.x == 736 and img_star.centroid.y == 55:
+        print(f'{coords.ra.hms} {coords.dec.dms}')
 
 # Test to match pixels to entries in the catalog
 labeled = 0
@@ -137,9 +142,9 @@ for hip_number in catalog._guide_stars:
 print(f'Could label: {labeled} guide stars.')
 
 
-cv2.line(image, (int(star1.centroid.x), int(star1.centroid.y)), (int(star2.centroid.x), int(star2.centroid.y)), (0, 0, 255), 1)
-cv2.line(image, (int(star2.centroid.x), int(star2.centroid.y)), (int(star3.centroid.x), int(star3.centroid.y)), (0, 0, 255), 1)
-cv2.line(image, (int(star3.centroid.x), int(star3.centroid.y)), (int(star1.centroid.x), int(star1.centroid.y)), (255, 0, 0), 1)
+cv2.line(image, (int(star1.centroid.x), int(star1.centroid.y)), (int(star2.centroid.x), int(star2.centroid.y)), (255, 0, 0), 1)
+cv2.line(image, (int(star2.centroid.x), int(star2.centroid.y)), (int(star3.centroid.x), int(star3.centroid.y)), (255, 0, 0), 1)
+cv2.line(image, (int(star3.centroid.x), int(star3.centroid.y)), (int(star1.centroid.x), int(star1.centroid.y)), (0, 0, 255), 1)
 cv2.line(image, (int(star4.centroid.x), int(star4.centroid.y)), (int(star1.centroid.x), int(star1.centroid.y)), (0, 255, 0), 1)
 cv2.line(image, (int(star4.centroid.x), int(star4.centroid.y)), (int(star3.centroid.x), int(star3.centroid.y)), (0, 255, 0), 1)
 

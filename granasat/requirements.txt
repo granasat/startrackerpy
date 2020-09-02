@@ -9,3 +9,5 @@ scipy==1.4.1
 influxdb==5.3.0
 filelock==3.0.12
 astropy==4.1rc1
+imutils==0.5.3
+matplotlib==3.2.1

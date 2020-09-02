@@ -22,6 +22,7 @@ class ImageStar:
         self.real_star = None
         self.wcs_coords = None
         self.labeled = False
+        self.identified = False
 
     def __eq__(self, other):
         if self.real_star is None or other.real_star is None:
@@ -73,3 +74,9 @@ class ImageStar:
 
     def is_labeled(self):
         return self.labeled
+
+    def set_identified(self, state):
+        self.identified = state
+
+    def is_identified(self):
+        return self.identified
