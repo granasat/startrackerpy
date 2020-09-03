@@ -50,15 +50,13 @@ function processImage(hist_chart){
         url: "/process-image",
         beforeSend: function() {
             // Show loader
-            showLoderForElement($('#img-frame'));
+            showFrameLoader();
             $('#logs').empty();
             // Disable buttons
             $('#btn-process-image').prop("disabled", true);
             $('#btn-upload-show-modal').prop("disabled", true);
         },
         success: function(data){
-            // Hide loader
-            $('.loader').hide();
             // Update histogram data
             datasets = {
                 labels: [],
@@ -111,6 +109,7 @@ function processImage(hist_chart){
             }
         },
         complete: function(){
+            $('.loader').hide();
             $('#btn-process-image').prop("disabled", false);
             $('#btn-upload-show-modal').prop("disabled", false);
         },
