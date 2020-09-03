@@ -62,8 +62,8 @@ function getFrame(){
 function showLoderForElement(element){
     // Brightness to 0.25
     // element.css({filter: "brightness(0.25)"});
-    ewidth = parseInt(element.css("width").replace("px"),"");
-    eheight = parseInt(element.css("height").replace("px"),"");
+    ewidth = parseInt(element.parent().css("width").replace("px"),"");
+    eheight = parseInt(element.parent().css("height").replace("px"),"");
     loaderWidth = parseInt($('.loader').css("width").replace("px"),"");
     loaderHeight = parseInt($('.loader').css("height").replace("px"),"");
     lleft = (ewidth / 2 - loaderWidth / 2) + "px";
