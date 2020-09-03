@@ -48,10 +48,13 @@ function processImage(hist_chart){
     }
     $.ajax({
         url: "/process-image",
-        beforeSend: function(data) {
+        beforeSend: function() {
             // Show loader
             showLoderForElement($('#img-frame'));
             $('#logs').empty();
+            // Disable buttons
+            $('#btn-process-image').prop("disabled", true);
+            $('#btn-upload-show-modal').prop("disabled", true);
         },
         success: function(data){
             // Hide loader
@@ -106,6 +109,10 @@ function processImage(hist_chart){
                 html += '<span class="font-weight-bold"> ' +  data.results.labeled.msg + '</span></div>';
                 $('#logs').append(html);
             }
+        },
+        complete: function(){
+            $('#btn-process-image').prop("disabled", false);
+            $('#btn-upload-show-modal').prop("disabled", false);
         },
         cache: false,
         data: {

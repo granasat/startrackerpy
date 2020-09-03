@@ -288,7 +288,7 @@ def process_image():
         ImageUtils.draw_pattern(image, pattern[0])
         # If draw extra guide Stars
         if label_guide_stars == "true":
-            labeled = ImageUtils.draw_guide_stars(image, stars, pattern[0], max=20)
+            labeled = ImageUtils.draw_guide_stars(image, stars, pattern[0], max=10)
             msg = {'type': 'info', 'msg': f'Extra guide stars labeled: {labeled}'}
             response['results']['labeled'] = msg
         _, im_arr = cv2.imencode('.jpg', image)
