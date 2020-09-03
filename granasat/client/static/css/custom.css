@@ -12,7 +12,7 @@
   padding-right: 2px;
 }
 
-#img-frame, #img-hist, #chart-histogram, #img-pattern {
+#img-frame, #img-hist, #chart-histogram, #img-pattern, #img-threshold {
   /* display: block; */
   border: 2px solid gray;
   width: 1024px;

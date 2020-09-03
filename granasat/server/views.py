@@ -6,16 +6,15 @@ import pathlib
 import uuid
 import logging
 from io import BytesIO
+from pathlib import Path
 import cv2
-# import scipy.io
-from server import app, catalog
 from flask import render_template, jsonify, request, send_file
+from server import app, catalog
 from server.cam import Cam
 from server.metrics import Metrics
 from server.sensors import DS1621, LSM303, CPU_SENSOR
 from server.db import Db
 from server.startracker.image import ImageUtils
-from pathlib import Path
 
 
 CAM = Cam()
@@ -29,6 +28,7 @@ def index():
     """ Returns the index html template
     """
     return render_template('index.html')
+
 
 @app.route("/current-frame")
 def current_frame():
@@ -59,12 +59,6 @@ def current_frame():
         'b64_img': im_b64,
         'uuid': f"{uid}.jpg",
     })
-
-    # return send_file(
-    #     io.BytesIO(im_b64),
-    #     mimetype='image/jpeg',
-    #     as_attachment=True,
-    #     attachment_filename='current.jpg')
 
 
 @app.route("/current-frame-tiff")
@@ -238,21 +232,50 @@ def upload_image():
 def process_image():
     """Process the given image to find stars and returns
     the image with the associated data"""
+    auto_threshold = request.args.get('auto_threshold')
+    label_guide_stars = request.args.get('label_guide_stars')
     images_path = f"{FILE_PATH}/data/images"
     response = {}
+    response['results'] = {}
     uid = request.args.get('uuid')
     image = cv2.imread(f"{images_path}/{uid}")
     gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray_img, (3, 3), 0)
-    threshold = ImageUtils.get_threshold(blurred, 170)
-    thresh_image = cv2.threshold(blurred, threshold, 255, cv2.THRESH_BINARY)[1]
 
-    stars = ImageUtils.get_image_stars(thresh_image, gray_img)
-    pattern = catalog.find_stars_pattern(stars[0:4], err=0.010)
-    _, im_arr = cv2.imencode('.jpg', image)
+    # Check if auto threshold was selected
+    logging.warning(auto_threshold)
+    if auto_threshold == "true":
+        threshold = ImageUtils.get_threshold(blurred, 170)
+        msg = {'type': 'info', 'msg': f'Automatic threshold selected: {threshold}'}
+
+    else:
+        threshold = int(request.args.get('threshold'))
+        msg = {'type': 'info', 'msg': f'Threshold selected by user input: {threshold}'}
+
+    response['results']['threshold'] = msg
+
+    # Get the threshold image
+    thresh_image = cv2.threshold(blurred, threshold, 255, cv2.THRESH_BINARY)[1]
+    # Convert to bytes and encode in base64 to send it in the response
+    _, im_arr = cv2.imencode('.jpg', thresh_image)
     im_bytes = im_arr.tobytes()
     img_b64 = base64.b64encode(im_bytes).decode("ascii")
-    response['b64_img'] = img_b64
+    response['b64_thresh_img'] = img_b64
+
+    # Get possible image stars
+    stars = ImageUtils.get_image_stars(thresh_image, gray_img)
+    # Find pattern if there are at least 4 possible images
+    pattern = []
+    if len(stars) >= 4:
+        pattern = catalog.find_stars_pattern(stars[0:4], err=0.010)
+        _, im_arr = cv2.imencode('.jpg', image)
+        im_bytes = im_arr.tobytes()
+        img_b64 = base64.b64encode(im_bytes).decode("ascii")
+        response['b64_img'] = img_b64
+        msg = {'type': 'info', 'msg': f'Possible stars found in the image: {len(stars)}'}
+    else:
+        msg = {'type': 'info', 'msg': f'Possible stars found in the image: {len(stars)}'}
+    response['results']['stars'] = msg
 
     # Histogram
     hist = cv2.calcHist([blurred], [0], None, [256], [0, 256])
@@ -262,11 +285,20 @@ def process_image():
     if len(pattern) > 0:
         response['pattern'] = True
         # Get original image with pattern drawn
-        ImageUtils.draw_pattern(image, pattern)
+        ImageUtils.draw_pattern(image, pattern[0])
+        # If draw extra guide Stars
+        if label_guide_stars == "true":
+            labeled = ImageUtils.draw_guide_stars(image, stars, pattern[0], max=20)
+            msg = {'type': 'info', 'msg': f'Extra guide stars labeled: {labeled}'}
+            response['results']['labeled'] = msg
         _, im_arr = cv2.imencode('.jpg', image)
         im_bytes = im_arr.tobytes()
         img_b64 = base64.b64encode(im_bytes).decode("ascii")
         response['pattern_points'] = img_b64
+        msg = {'type': 'success', 'msg': f'Pattern found: {pattern[1]}'}
+    else:
+        msg = {'type': 'Error', 'msg': f'Pattern not found'}
 
+    response['results']['pattern'] = msg
 
     return jsonify(response)

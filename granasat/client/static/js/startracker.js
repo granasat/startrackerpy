@@ -6,7 +6,38 @@ var startracker = function(){
     $("#btn-process-image").on('click', function(){
         processImage(hist_chart);
     });
+
+    // Image upload binding
+    $("#btn-upload-image").click(uploadImage);
 };
+
+/**
+ * Upload a custom user image.
+ */
+function uploadImage(){
+    var frmdata = new FormData();
+    var file = $('#upload-file-input')[0].files[0];
+    frmdata.append('image', file);
+
+    $.ajax({
+        url: "/upload-image",
+        type: "post",
+        data: frmdata,
+        contentType: false,
+        processData: false,
+        cache: false,
+        beforeSend: function(){
+            console.log('Uploading....');
+        },
+        success: function(data){
+            $("#btn-upload-image-close").click();
+            $("#img-frame").attr("src", "data:image/jpeg;base64," + data.b64_img);
+            $("#img-frame").attr("data-uuid", data.uuid);
+            $('#frame-tab').click();
+        }
+    });
+};
+
 
 function processImage(hist_chart){
     console.log("Processing image");
@@ -17,7 +48,14 @@ function processImage(hist_chart){
     }
     $.ajax({
         url: "/process-image",
+        beforeSend: function(data) {
+            // Show loader
+            showLoderForElement($('#img-frame'));
+            $('#logs').empty();
+        },
         success: function(data){
+            // Hide loader
+            $('.loader').hide();
             // Update histogram data
             datasets = {
                 labels: [],
@@ -35,20 +73,50 @@ function processImage(hist_chart){
             });
             var max = Math.max.apply(null, values);
             hist_chart(datasets, max);
+            // Set thresholded image
+            $("#img-threshold").attr("src","data:image/jpeg;base64," + data.b64_thresh_img);
+
             // If a solution was found draw pattern points
             if (data.pattern == true){
                 $("#img-pattern").attr("src","data:image/jpeg;base64," + data.pattern_points);
             }
-            $('#pattern-tab').click();
+
+            // Show report in Results section
+            //   Pattern found?
+            if (data.results.pattern.type == 'success'){
+                html = '<div><span class="badge badge-success">Success</span>';
+                html += '<span class="font-weight-bold"> ' +  data.results.pattern.msg + '</span></div>';
+                $('#pattern-tab').click();
+            } else {
+                html = '<div><span class="badge badge-danger">Error</span>';
+                html += '<span class="font-weight-bold"> ' +  data.results.pattern.msg + '</span></div>';
+                $('#frame-tab').click();
+            }
+            $('#logs').append(html);
+            // Threshold selected
+            html = '<div><span class="badge badge-info">Info</span>';
+            html += '<span class="font-weight-bold"> ' +  data.results.threshold.msg + '</span></div>';
+            $('#logs').append(html);
+            // Total stars found in the image
+            html = '<div><span class="badge badge-info">Info</span>';
+            html += '<span class="font-weight-bold"> ' +  data.results.stars.msg + '</span></div>';
+            $('#logs').append(html);
+            if (data.results.labeled) {
+                html = '<div><span class="badge badge-info">Info</span>';
+                html += '<span class="font-weight-bold"> ' +  data.results.labeled.msg + '</span></div>';
+                $('#logs').append(html);
+            }
         },
         cache: false,
         data: {
-            uuid: imageUUID
+            uuid: imageUUID,
+            auto_threshold: $('#auto-threshold').is(':checked'),
+            label_guide_stars: $('#label-guide-stars').is(':checked'),
+            threshold: $('#threshold').val()
         },
         type: "get"
     });
 };
-
 
 /**
  * Create histogram chart.

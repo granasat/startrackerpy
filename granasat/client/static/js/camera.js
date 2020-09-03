@@ -16,9 +16,6 @@ var camera = function(){
     // Get frame binding
     $("#btn-frame").click(getFrame);
 
-    // Image upload binding
-    $("#btn-upload-image").click(uploadImage);
-
     // Queue burst binding
     $("#btn-queue-burst").click(queueBurst);
 
@@ -29,32 +26,6 @@ var camera = function(){
     getBursts();
 };
 
-/**
- * Upload a custom user image.
- */
-function uploadImage(){
-    var frmdata = new FormData();
-    var file = $('#upload-file-input')[0].files[0];
-    frmdata.append('image', file);
-
-    $.ajax({
-        url: "/upload-image",
-        type: "post",
-        data: frmdata,
-        contentType: false,
-        processData: false,
-        cache: false,
-        beforeSend: function(){
-            // Uploading gif?
-            console.log('Uploading....');
-        },
-        success: function(data){
-            $("#btn-upload-image-close").click();
-            $("#img-frame").attr("src","data:image/jpeg;base64," + data.b64_img);
-            $("#img-frame").attr("data-uuid", data.uuid);
-        }
-    });
-};
 
 /**
  * Get a frame and update the main image element with its data.
@@ -69,25 +40,13 @@ function getFrame(){
             $("#img-frame").attr("data-uuid", data.uuid);
         },
         beforeSend: function(){
-            // Brightness to 0.25
-            $("#img-frame").css({filter: "brightness(0.25)"});
-            // Compute elements positions to center the loader
-            ewidth = parseInt($('.frame').css("width").replace("px"),"");
-            eheight = parseInt($('.frame').css("height").replace("px"),"");
-            loaderWidth = parseInt($('.loader').css("width").replace("px"),"");
-            loaderHeight = parseInt($('.loader').css("height").replace("px"),"");
-            lleft = (ewidth / 2 - loaderWidth / 2) + "px";
-            ltop = (eheight / 2 - loaderHeight / 2) + "px";
-            $('.loader').css({
-                position: 'absolute',
-                zIndex: 5000,
-                left: lleft,
-                top: ltop
-            }).show();
+            // Show loader
+            showLoderForElement($('#img-frame'));
         },
         complete: function(){
             $('.loader').hide();
             $('#btn-frame').removeClass('active');
+            $('#frame-tab').click();
         },
         cache: false,
         data: {
@@ -98,6 +57,27 @@ function getFrame(){
         },
         type: "get"
     });
+};
+
+function showLoderForElement(element){
+    // Brightness to 0.25
+    // element.css({filter: "brightness(0.25)"});
+    ewidth = parseInt(element.css("width").replace("px"),"");
+    eheight = parseInt(element.css("height").replace("px"),"");
+    loaderWidth = parseInt($('.loader').css("width").replace("px"),"");
+    loaderHeight = parseInt($('.loader').css("height").replace("px"),"");
+    lleft = (ewidth / 2 - loaderWidth / 2) + "px";
+    ltop = (eheight / 2 - loaderHeight / 2) + "px";
+    console.log(ewidth);
+    console.log(eheight);
+    console.log(lleft);
+    console.log(ltop);
+    $('.loader').css({
+        position: 'absolute',
+        zIndex: 5000,
+        left: lleft,
+        top: ltop
+    }).show();
 };
 
 /**
@@ -134,7 +114,7 @@ function getBursts(){
  * Download a burst.
  *
  * @param {Number} burstId ID of the burst to be downloaded.
- * @param {String} format Valid formats are: raw, jpeg or matlab.
+ * @param {String} format Valid formats are: raw or jpeg.
  */
 function downloadBurst(burstId, format){
     window.location = `download-burst?burstId=${burstId}&format=${format}`;

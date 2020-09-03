@@ -117,10 +117,6 @@ for img_star in img_stars:
     coords_ra, coords_dec = my_wcs.wcs_pix2world(pixel_x, pixel_y, 0)
     coords = SkyCoord(ra=coords_ra, dec=coords_dec, unit=u.deg)
     img_star.set_wcs_coords(coords)
-    if img_star.centroid.x == 197 and img_star.centroid.y == 481:
-        print(f'{coords.ra.hms} {coords.dec.dms}')
-    if img_star.centroid.x == 736 and img_star.centroid.y == 55:
-        print(f'{coords.ra.hms} {coords.dec.dms}')
 
 # Test to match pixels to entries in the catalog
 labeled = 0

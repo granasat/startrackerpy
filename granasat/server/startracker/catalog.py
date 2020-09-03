@@ -370,7 +370,7 @@ class Catalog:
             if len(pattern) == 1:
                 self._identify_stars_pattern([star1, star2, star3, star4], [triplets1, triplets2, triplets3],
                                              [common1_2, common1_3], pattern[0])
-                return [star1, star2, star3, star4]
+                return [[star1, star2, star3, star4], pattern[0]]
 
             c_err += 0.001
 

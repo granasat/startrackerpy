@@ -4,8 +4,13 @@ from io import BytesIO
 from scipy.stats import norm
 import cv2
 import numpy as np
+from server import catalog
 from server.startracker.image_star import ImageStar, Centroid
 import matplotlib.pyplot as plt
+from astropy import units as u
+from astropy.coordinates import SkyCoord
+from astropy.wcs.utils import fit_wcs_from_points
+
 
 
 class ImageUtils:
@@ -97,13 +102,64 @@ class ImageUtils:
             cv2.line(img, (int(star1.centroid.x), int(star1.centroid.y)),
                      (int(star2.centroid.x), int(star2.centroid.y)),
                      color, 1)
-            center = (star1.centroid.x - 20, star1.centroid.y - 10)
-            cv2.putText(img, str(star1.real_star.name), center,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
-            center = (star2.centroid.x - 20, star2.centroid.y - 10)
-            cv2.putText(img, str(star2.real_star.name), center,
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
         # Connect first and last too
         cv2.line(img, (int(stars[0].centroid.x), int(stars[0].centroid.y)),
                      (int(stars[-1].centroid.x), int(stars[-1].centroid.y)),
                      color, 1)
+
+        # Put name for identified stars
+        for star in stars:
+            if star.is_identified():
+                center = (star.centroid.x - 20, star.centroid.y - 10)
+                cv2.putText(img, str(star.real_star.name), center,
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
+
+    @classmethod
+    def draw_guide_stars(cls, img, img_stars, pattern, max=20, color=(255, 255, 255)):
+        """Given an image and a list of Centroids
+        draw lines in the image between them in order"""
+        # Build WCS
+        pixels_x = np.array([])
+        pixels_y = np.array([])
+        stars_ra = []
+        stars_dec = []
+        for found_star in pattern:
+            if found_star.is_identified():
+                pixels_x = np.append(pixels_x, found_star.centroid.x)
+                pixels_y = np.append(pixels_y, found_star.centroid.y)
+                stars_ra.append(found_star.real_star.ra)
+                stars_dec.append(found_star.real_star.dec)
+        stars = SkyCoord(ra=stars_ra, dec=stars_dec, unit=u.deg)
+        wcs = fit_wcs_from_points((pixels_x, pixels_y), stars)
+
+        img_stars_to_label = []
+        for img_star in img_stars:
+            for found_star in pattern:
+                if found_star.centroid == img_star.centroid and found_star.is_identified():
+                    img_star.labeled = True
+            img_stars_to_label.append(img_star)
+
+        # Set wcs coordinates to ImageStars
+        for img_star in img_stars:
+            pixel_x = np.array([[img_star.centroid.x]])
+            pixel_y = np.array([[img_star.centroid.y]])
+            coords_ra, coords_dec = wcs.wcs_pix2world(pixel_x, pixel_y, 0)
+            coords = SkyCoord(ra=coords_ra, dec=coords_dec, unit=u.deg)
+            img_star.set_wcs_coords(coords)
+
+        labeled = 0
+        for hip_number in catalog._guide_stars:
+            star = catalog.get_star_by_id(int(hip_number))
+            coords_a = SkyCoord(ra=star.ra, dec=star.dec, unit=u.deg)
+            for img_star in img_stars_to_label[:max]:
+                if img_star.is_labeled():
+                    continue
+                coords_b = img_star.get_wcs_coords()
+                if coords_a.separation(coords_b) < 0.5 * u.deg:
+                    center = (img_star.centroid.x - 20, img_star.centroid.y + 25)
+                    cv2.putText(img, str(star.name), center,
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 1)
+                    labeled += 1
+                    img_star.set_labeled()
+
+        return labeled

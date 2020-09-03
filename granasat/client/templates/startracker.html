@@ -1,4 +1,4 @@
-<div id="startracker" class="tab-pane fade" role="tabpanel">
+<div id="startracker" class="tab-pane fade show active" role="tabpanel">
   <!-- Parameters -->
   <div class="parameters">
     <nav class="navbar navbar-expand-lg navbar-light bg-light inner-nav">
@@ -7,7 +7,7 @@
 
     <!-- Auto threhsold -->
     <div class="custom-control custom-checkbox">
-      <input type="checkbox" class="custom-control-input" id="auto-threshold" checked>
+      <input id="auto-threshold" type="checkbox" class="custom-control-input" checked>
       <label class="custom-control-label font-weight-bold indigo-text" for="auto-threshold">
         Auto threshold
       </label>
@@ -15,9 +15,9 @@
 
     <!-- Label all possible guide stars -->
     <div class="custom-control custom-checkbox">
-      <input type="checkbox" class="custom-control-input" id="label-all-possible">
-      <label class="custom-control-label font-weight-bold indigo-text" for="label-all-possible">
-        Label all possible guide stars
+      <input id="label-guide-stars" type="checkbox" class="custom-control-input">
+      <label class="custom-control-label font-weight-bold indigo-text" for="label-guide-stars">
+        Label guide stars
       </label>
     </div>
 
@@ -26,9 +26,10 @@
       <label class="font-weight-bold indigo-text" for="threshold">
         Threshold
       </label>
-      <input id="threshold" class="quantity" min="0" max="255" name="quantity" value="20" type="number">
+      <input id="threshold" class="quantity" min="0" max="255" name="quantity" value="100" type="number">
     </div>
   </div>
+
 
   <!-- Actions -->
   <div class="actions">
@@ -76,5 +77,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light inner-nav">
       <span class="navbar-brand" href="/">Results</span>
     </nav>
+
+    <div id="logs"></div>
   </div>
 </div>
