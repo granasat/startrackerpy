@@ -2,7 +2,6 @@ import base64
 import time
 import zipfile
 import os
-import pathlib
 import uuid
 import logging
 from io import BytesIO
@@ -19,7 +18,7 @@ from server.startracker.image import ImageUtils
 
 CAM = Cam()
 # Current file Path
-FILE_PATH = pathlib.Path(__file__).parent.absolute()
+FILE_PATH = Path(__file__).parent.absolute()
 DB = Db(f"{FILE_PATH}/data/granasat.db")
 
 

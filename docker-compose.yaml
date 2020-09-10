@@ -42,7 +42,7 @@ services:
     ports:
       - "8086:8086"
     environment:
-      - INFLUXDB_DB=granasat
+      - INFLUXDB_DB=startrackerpy
       - INFLUXDB_HTTP_AUTH_ENABLED=true
       - INFLUXDB_ADMIN_USER=admin
       - INFLUXDB_ADMIN_PASSWORD=12345

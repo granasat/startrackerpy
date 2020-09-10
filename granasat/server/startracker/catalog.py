@@ -347,7 +347,6 @@ class Catalog:
                     star.set_real_star(self.get_star_by_id(found_id.real_star.hip_number))
                     star.set_identified(True)
 
-
     def find_stars_pattern(self, stars, err):
         """4 stars are needed"""
         pattern = []
@@ -368,7 +367,8 @@ class Catalog:
 
             # If There is only one match, we got the solution
             if len(pattern) == 1:
-                self._identify_stars_pattern([star1, star2, star3, star4], [triplets1, triplets2, triplets3],
+                self._identify_stars_pattern([star1, star2, star3, star4],
+                                             [triplets1, triplets2, triplets3],
                                              [common1_2, common1_3], pattern[0])
                 return [[star1, star2, star3, star4], pattern[0]]
 

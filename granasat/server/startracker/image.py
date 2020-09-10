@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.wcs.utils import fit_wcs_from_points
+import logging
 
 
 
@@ -26,6 +27,9 @@ class ImageUtils:
         :param thresh_max: Maximum value for threshold as limit
         """
         mean, std = norm.fit(img)
+        logging.warning(f'{mean=} {std=}')
+        formula = 0.606 * mean + std + 2.85 -0.79
+        logging.warning(f'{formula=}')
         threshold = int(mean + 3.6 * std)
         if thresh_max:
             threshold = threshold if threshold < thresh_max else thresh_max
@@ -151,6 +155,7 @@ class ImageUtils:
         for hip_number in catalog._guide_stars:
             star = catalog.get_star_by_id(int(hip_number))
             coords_a = SkyCoord(ra=star.ra, dec=star.dec, unit=u.deg)
+            max = 10
             for img_star in img_stars_to_label[:max]:
                 if img_star.is_labeled():
                     continue

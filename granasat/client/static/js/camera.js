@@ -60,8 +60,19 @@ function getFrame(){
 };
 
 function showFrameLoader(){
-    ewidth = parseInt($('#frame').css("width").replace("px"),"");
-    eheight = parseInt($('#frame').css("height").replace("px"),"");
+    if ($('#frame').hasClass('active')){
+        parent = $('#frame');
+    } else if($('#histogram').hasClass('active')){
+        parent = $('#histogram');
+    } else if($('#thresholded').hasClass('active')){
+        parent = $('#thresholded');
+    } else if($('#pattern').hasClass('active')){
+        parent = $('#pattern');
+    } else {
+        return;
+    }
+    ewidth = parseInt(parent.css("width").replace("px"),"");
+    eheight = parseInt(parent.css("height").replace("px"),"");
     loaderWidth = parseInt($('.loader').css("width").replace("px"),"");
     loaderHeight = parseInt($('.loader').css("height").replace("px"),"");
     lleft = (ewidth / 2 - loaderWidth / 2) + "px";

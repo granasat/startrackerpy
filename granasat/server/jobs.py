@@ -11,11 +11,15 @@ from server.cam import Cam
 
 
 class Jobs:
+    """Class to run background jobs every `interval` seconds
+    it is mainly used to capture a burst of images and to gather
+    sensors metrics."""
     def __init__(self, interval: int = 5):
         self._interval = interval
 
-    def __write_cpu_metrics(self, influx_cli: InfluxDBClient,
-                          cpu_sensor: CPU_SENSOR) -> None:
+    @classmethod
+    def __write_cpu_metrics(cls, influx_cli: InfluxDBClient,
+                            cpu_sensor: CPU_SENSOR) -> None:
         """Write metrics of the current CPU temperature.
 
         :param influx_cli: InfluxDBClient to write metrics to.
@@ -37,8 +41,9 @@ class Jobs:
         ]
         influx_cli.write_points(json_body)
 
-    def __write_cam_temp_metrics(self, influx_cli: InfluxDBClient,
-                               ds_sensor: DS1621) -> None:
+    @classmethod
+    def __write_cam_temp_metrics(cls, influx_cli: InfluxDBClient,
+                                 ds_sensor: DS1621) -> None:
         """Write metrics of the current camera temperature.
 
         :param influx_cli: InfluxDBClient to write metrics to.
@@ -62,8 +67,9 @@ class Jobs:
         ]
         influx_cli.write_points(json_body)
 
-    def __write_accelerometer_metrics(self, influx_cli: InfluxDBClient,
-                                    lsm_sensor: LSM303) -> None:
+    @classmethod
+    def __write_accelerometer_metrics(cls, influx_cli: InfluxDBClient,
+                                      lsm_sensor: LSM303) -> None:
         """Write metrics of the current accelerometer values.
 
         :param influx_cli: InfluxDBClient to write metrics to.
@@ -88,8 +94,9 @@ class Jobs:
         ]
         influx_cli.write_points(json_body)
 
-    def __write_magnetometer_metrics(self, influx_cli: InfluxDBClient,
-                                   lsm_sensor: LSM303) -> None:
+    @classmethod
+    def __write_magnetometer_metrics(cls, influx_cli: InfluxDBClient,
+                                     lsm_sensor: LSM303) -> None:
         """Write metrics of the current magnetometer values.
 
         :param influx_cli: InfluxDBClient to write metrics to.
@@ -151,7 +158,7 @@ class Jobs:
                 if burst['finished'] is not None:
                     continue
 
-                logging.debug("Starting burst {}".format(burst['id']))
+                logging.debug(f"Starting burst {burst['id']}")
                 frames = int(burst['duration'] / burst['interval'])
                 cam_params = {
                     'brightness': int(burst['brightness']),
