@@ -1,10 +1,10 @@
 version: "3.7"
 
 services:
-  flask:
+  server:
     build: ./granasat
-    image: granasat
-    container_name: flask
+    image: startrackerpy
+    container_name: server
     restart: always
     privileged: true
     environment:
@@ -58,7 +58,7 @@ services:
 
 
   jobs:
-    image: granasat
+    image: startrackerpy
     container_name: jobs
     restart: always
     privileged: true
