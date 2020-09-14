@@ -77,7 +77,7 @@ class Jobs:
         """
         data = lsm_sensor.read_accel()
         # convert to m/s^2
-        data = data/1024*10
+        data = [value/1024*10 for value in data]
 
         json_body = [
             {
@@ -106,7 +106,7 @@ class Jobs:
         """
         data = lsm_sensor.read_mag()
         # convert to microT
-        data = data/10
+        data = [value/10 for value in data]
 
         json_body = [
             {
