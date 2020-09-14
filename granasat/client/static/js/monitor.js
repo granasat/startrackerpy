@@ -6,10 +6,10 @@ var monitor = function(){
         'camera-temp': {'title': 'Camera Temp', 'chart': null, unit: '°', colors: {
             'degrees': '#d39e00'
         }},
-        'magnetometer': {'title': 'Magnetometer', 'chart': null, unit: 'μT', colors: {
+        'magnetometer': {'title': 'Magnetometer', 'chart': null, unit: ' μT', colors: {
             'x': '#dc3545', 'y': '#1e7e34', 'z': '#0062cc'
         }},
-        'accelerometer': {'title': 'Accelerometer', 'chart': null, unit: 'm/s^2', colors: {
+        'accelerometer': {'title': 'Accelerometer', 'chart': null, unit: ' m/s^2', colors: {
             'x': '#dc3545', 'y': '#1e7e34', 'z': '#0062cc'
         }}
     };
@@ -71,7 +71,7 @@ function createChart(name, title, unit) {
                 intersect: false,
                 callbacks: {
                     label: function(tooltipItems, data) {
-                        return tooltipItems.yLabel + unit;
+                        return data.datasets[tooltipItems.datasetIndex].label + ': ' + tooltipItems.yLabel + unit;
                     }
                 }
             },
