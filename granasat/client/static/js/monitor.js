@@ -1,22 +1,22 @@
 var monitor = function(){
     var charts = {
-        'cpu-temp': {'title': 'CPU Temp', 'chart': null, colors: {
+        'cpu-temp': {'title': 'CPU Temp', 'chart': null, unit: '°', colors: {
             'degrees': '#d39e00'
         }},
-        'camera-temp': {'title': 'Camera Temp', 'chart': null, colors: {
+        'camera-temp': {'title': 'Camera Temp', 'chart': null, unit: '°', colors: {
             'degrees': '#d39e00'
         }},
-        'magnetometer': {'title': 'Magnetometer', 'chart': null, colors: {
+        'magnetometer': {'title': 'Magnetometer', 'chart': null, unit: 'μT', colors: {
             'x': '#dc3545', 'y': '#1e7e34', 'z': '#0062cc'
         }},
-        'accelerometer': {'title': 'Accelerometer', 'chart': null, colors: {
+        'accelerometer': {'title': 'Accelerometer', 'chart': null, unit: 'm/s^2', colors: {
             'x': '#dc3545', 'y': '#1e7e34', 'z': '#0062cc'
         }}
     };
 
     // Initialize the charts
     $.each(charts, function(index, value){
-        var chart = createChart(index, value.title);
+        var chart = createChart(index, value.title, value.unit);
         charts[index]['chart'] = chart;
     });
 
@@ -42,10 +42,11 @@ var monitor = function(){
  *
  * @param {String} name chat's name.
  * @param {String} title title's to show in the chart.
+ * @param {String} unit unit to show in the tooltip.
  *
  * @return {Function} **update()** the chart with new data.
  */
-function createChart(name, title) {
+function createChart(name, title, unit) {
     var ctx = $('#chart-' + name);
     var chart = new Chart(ctx, {
         type: 'line',
@@ -67,12 +68,16 @@ function createChart(name, title) {
             },
             tooltips: {
                 mode: 'index',
-                intersect: false
+                intersect: false,
+                callbacks: {
+                    label: function(tooltipItems, data) {
+                        return tooltipItems.yLabel + unit;
+                    }
+                }
             },
             elements: {
                 line: {
-                    // tension: 0.9,
-                    borderWidth: 6,
+                    borderWidth: 3,
                     fill: false
                 },
                 point: {

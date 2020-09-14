@@ -77,7 +77,7 @@ class Jobs:
         """
         data = lsm_sensor.read_accel()
         # convert to m/s^2
-        data = [value/1024*10 for value in data]
+        data = [round(value/1024*10, 3) for value in data]
 
         json_body = [
             {
