@@ -237,12 +237,12 @@ class Catalog:
 
         return [common, news]
 
-    def _get_common_triplets(self, triplets_a, triplets_b):
+    def _get_common_triplets(self, triplets_a, triplets_b) -> list:
         """Having two list of triplets of stars as parameters
         return the stars which are in both triplets having two in common.
 
         basically, search if for any triplet in 'a' there is a triplet in 'b'
-        which contains two elements of the former one.
+        which contains two elements of the first one.
 
         returns List of ImageStar or empty list.
         """

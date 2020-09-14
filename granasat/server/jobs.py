@@ -76,6 +76,8 @@ class Jobs:
         :param lsm_sensor: sensor to read the values from.
         """
         data = lsm_sensor.read_accel()
+        # convert to m/s^2
+        data = data/1024*10
 
         json_body = [
             {
@@ -103,6 +105,8 @@ class Jobs:
         :param lsm_sensor: sensor to read the values from.
         """
         data = lsm_sensor.read_mag()
+        # convert to microT
+        data = data/10
 
         json_body = [
             {

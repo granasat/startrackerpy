@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # Color: BGR
-import argparse
 import imutils
 import cv2
 import sys
@@ -10,7 +9,6 @@ from scipy.stats import norm
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.wcs.utils import fit_wcs_from_points
-from server.startracker.image_star import ImageStar, Centroid
 from server.startracker.catalog import Catalog
 from server.startracker.image import ImageUtils
 
@@ -80,7 +78,7 @@ stars_ra = []
 stars_dec = []
 
 # To build the WCS we use only the common stars
-for found_star in pattern:
+for found_star in pattern[0]:
     center = (found_star.centroid.x, found_star.centroid.y)
     radius = 10
     cv2.circle(image, center, radius, (0, 255, 0), 1)
@@ -105,7 +103,7 @@ print(stars)
 img_stars_to_label = []
 max_labels = 20
 for img_star in img_stars:
-    for found_star in pattern:
+    for found_star in pattern[0]:
         if found_star.centroid == img_star.centroid and found_star.is_identified():
             img_star.labeled = True
     img_stars_to_label.append(img_star)

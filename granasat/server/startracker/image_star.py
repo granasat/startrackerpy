@@ -30,7 +30,6 @@ class ImageStar:
         return self.real_star.hip_number == other.real_star.hip_number
 
     def __repr__(self):
-        # return f"[{self.centroid.x}, {self.centroid.y}, {self.real_star}]"
         if self.real_star is not None:
             return f"{self.real_star.hip_number}"
         return f"x: {self.centroid.x}, y: {self.centroid.y}"
