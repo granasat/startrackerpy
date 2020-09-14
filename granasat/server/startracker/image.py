@@ -27,9 +27,6 @@ class ImageUtils:
         :param thresh_max: Maximum value for threshold as limit
         """
         mean, std = norm.fit(img)
-        logging.warning(f'{mean=} {std=}')
-        formula = 0.606 * mean + std + 2.85 -0.79
-        logging.warning(f'{formula=}')
         threshold = int(mean + 3.6 * std)
         if thresh_max:
             threshold = threshold if threshold < thresh_max else thresh_max
