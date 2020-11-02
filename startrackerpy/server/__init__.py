@@ -10,9 +10,9 @@ influx_cli = InfluxDBClient('influxdb', 8086, 'admin', '12345', 'startrackerpy')
 # Probably need to fix this path for docker
 FILE_PATH = Path(__file__).parent.absolute()
 catalogs_path = f"{FILE_PATH}/startracker/catalogs/out"
-catalog = Catalog(f"{catalogs_path}/hip2_2000.csv",
-                  f"{catalogs_path}/guide_stars2_2000_5.csv",
-                  f"{catalogs_path}/guide_stars2_2000_5_labels.csv")
+catalog = Catalog(f"{catalogs_path}/hip_2000.csv",
+                  f"{catalogs_path}/guide_stars_2000_5.csv",
+                  f"{catalogs_path}/guide_stars_2000_5_labels.csv")
 app = Flask(__name__, template_folder='../client/templates',
             static_folder='../client/static')
 jobs = Jobs()
