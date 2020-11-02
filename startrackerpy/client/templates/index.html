@@ -1,0 +1,78 @@
+<html>
+  <head>
+    {% include "header.html" %}
+  </head>
+  <body>
+    <section class="container-fluid">
+      <!-- navbar-header -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">StarTrackerPy</a>
+      </nav>
+      <section id="main-content" class="row justify-content-md-center">
+
+        <!-- Left column -->
+        <div class="monitor col col-3">
+          <ul class="nav nav-tabs mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="camera-tab" data-toggle="pill" href="#camera" role="tab" aria-selected="true">Monitor</a>
+            </li>
+          </ul>
+       {% include "monitor.html" %}
+        </div>
+
+        <!-- Center column -->
+        <div class="frame col">
+          <ul class="nav nav-tabs mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="frame-tab" data-toggle="pill" href="#frame" role="tab" aria-selected="true">Image</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="hist-tab" data-toggle="pill" href="#histogram" role="tab">Histogram</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="hist-tab" data-toggle="pill" href="#thresholded" role="tab">Thresholded</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="pattern-tab" data-toggle="pill" href="#pattern" role="tab">Pattern</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="nav-center-column">
+            <div id="frame" class="tab-pane fade show active" role="tabpanel">
+              <div class="loader"></div>
+              <img id="img-frame" src="/static/img/camera.png" class="img-fluid mx-auto d-block"/>
+            </div>
+            <div id="histogram" class="tab-pane fade" role="tabpanel">
+              <div class="loader"></div>
+              <canvas id="chart-histogram" class="img-fluid mx-auto d-block"></canvas>
+            </div>
+            <div id="thresholded" class="tab-pane fade" role="tabpanel">
+              <div class="loader"></div>
+              <img id="img-threshold" src="/static/img/camera.png" class="img-fluid mx-auto d-block"/>
+            </div>
+            <div id="pattern" class="tab-pane fade" role="tabpanel">
+              <div class="loader"></div>
+              <img id="img-pattern" src="/static/img/camera.png" class="img-fluid mx-auto d-block"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="camera col col-3">
+          <ul class="nav nav-tabs mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link" id="camera-tab" data-toggle="pill" href="#camera" role="tab" aria-selected="false">Camera</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" id="startracker-tab" data-toggle="pill" href="#startracker" role="tab" aria-selected="true">StarTracker</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="nav-right-column">
+            {% include "camera.html" %}
+            {% include "startracker.html" %}
+          </div>
+        </div>
+      </section>
+    </section>
+    {% include "footer.html" %}
+  </body>
+</html>

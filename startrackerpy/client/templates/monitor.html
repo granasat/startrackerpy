@@ -1,0 +1,46 @@
+<!-- LEDs and Refresh -->
+<section class="row justify-content-end">
+  <!-- Leds -->
+  <div class="col">
+    <span class="led red"></span>
+    <span class="led green"></span>
+    <span class="led blue"></span>
+    <span class="led white"></span>
+    <span class="led orange"></span>
+  </div>
+  <!-- Dropdown last X time -->
+  <div class="btn-group btn-metrics-dropdown">
+    <button id="btn-metrics" class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value="5">
+      Last 5 minutes
+    </button>
+    <ul class="dropdown-metrics dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <li class="dropdown-item" value="1">Last 1 minute</li>
+      <li class="dropdown-item" value="5">Last 5 minutes</li>
+      <li class="dropdown-item" value="10">Last 10 minutes</li>
+      <li class="dropdown-item" value="15">Last 15 minutes</li>
+    </ul>
+  </div>
+  <!-- Refresh button -->
+  <button id="btn-refresh-metrics" type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Refresh">
+    <i class="fas fa-sync-alt" aria-hidden="true"></i>
+  </button>
+</section>
+
+
+<!-- Metric Charts -->
+<section class="row no-gutters">
+  <canvas id="chart-cpu-temp" style="max-height: 200px;"></canvas>
+</section>
+
+<section class="row no-gutters">
+  <canvas id="chart-camera-temp" style="max-height: 200px;"></canvas>
+</section>
+
+<section class="row no-gutters">
+  <canvas id="chart-magnetometer" style="max-height: 200px;"></canvas>
+</section>
+
+<section class="row no-gutters">
+  <canvas id="chart-accelerometer" style="max-height: 200px;"></canvas>
+</section>

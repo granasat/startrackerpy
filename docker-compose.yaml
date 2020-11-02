@@ -2,13 +2,13 @@ version: "3.7"
 
 services:
   server:
-    build: ./granasat
+    build: ./startrackerpy
     image: startrackerpy
     container_name: server
     restart: always
     privileged: true
     environment:
-      - APP_NAME=granasat
+      - APP_NAME=startrackerpy
       - DEBUG=True
     expose:
       - 4000
@@ -16,16 +16,16 @@ services:
       options:
         max-size: "10m"
     volumes:
-      - ./granasat/server:/app/server
-      - ./granasat/client:/app/client
-      - ./granasat/app.ini:/app/app.ini
-      - ./granasat/run.py:/app/run.py
+      - ./startrackerpy/server:/app/server
+      - ./startrackerpy/client:/app/client
+      - ./startrackerpy/app.ini:/app/app.ini
+      - ./startrackerpy/run.py:/app/run.py
     depends_on:
       - influxdb
 
 
   nginx:
-    build: ./granasat/nginx
+    build: ./startrackerpy/nginx
     container_name: nginx
     restart: always
     ports:
@@ -36,7 +36,7 @@ services:
 
 
   influxdb:
-    build: ./granasat/influxdb
+    build: ./startrackerpy/influxdb
     container_name: influxdb
     restart: always
     ports:
@@ -54,7 +54,7 @@ services:
       options:
         max-size: "10m"
     volumes:
-      - ./granasat/influxdb/data:/var/lib/influxdb
+      - ./startrackerpy/influxdb/data:/var/lib/influxdb
 
 
   jobs:
@@ -68,8 +68,8 @@ services:
       options:
         max-size: "10m"
     volumes:
-      - ./granasat/server:/app/server
-      - ./granasat/jobs.py:/app/jobs.py
+      - ./startrackerpy/server:/app/server
+      - ./startrackerpy/jobs.py:/app/jobs.py
 
     depends_on:
       - influxdb

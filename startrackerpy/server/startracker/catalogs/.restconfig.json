@@ -1,0 +1,6 @@
+{
+   "baseurl": "https://bdscan.daimler.com",
+   "api_token": "MTBlMmY2Y2QtYTkyZi00ZTgyLTkyZDQtZGJjN2JhMzYwOTNiOmQxYTQyODdiLWE3OGUtNDI5Ny1iODI2LTIxZjM0YmFjMmNjMA==",
+   "insecure": false,
+   "debug": false
+}

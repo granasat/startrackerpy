@@ -1,0 +1,9 @@
+-/client
+-/data
+-/docs
+-/influxdb
+-/nginx
+-/tests
+-/__pycache__
++/server
+-/server/data
