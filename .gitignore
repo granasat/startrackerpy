@@ -3,6 +3,7 @@ startrackerpy/influxdb/data/*
 **/.pyc
 **/.ipynb_checkpoints
 startrackerpy/server/data/**
+!startrackerpy/server/data/.gitkeep
 startrackerpy/docs/_build/**
 startrackerpy/docs/_static/**
 !startrackerpy/docs/_build/.gitkeep
