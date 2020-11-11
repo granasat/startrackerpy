@@ -4,6 +4,7 @@ startrackerpy/influxdb/data/*
 **/.ipynb_checkpoints
 **/.log
 startrackerpy/server/data/**
+startrackerpy/server/startracker/test_images/ballon
 !startrackerpy/server/data/.gitkeep
 startrackerpy/docs/_build/**
 startrackerpy/docs/_static/**
