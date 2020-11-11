@@ -1,0 +1,45 @@
+* Requirements
+The project uses Docker images to run its services, and this images
+are based on ARM7 architecture, however it is still possible to run
+them in =x86= or =amd64= architectures by installing the following
+packages in Debian based distributions:
+
+#+begin_src bash
+  apt install qemu binfmt-support qemu-user-static
+#+end_src
+
+Other requirements to use all the features in the project:
+- DMK 41BU02 Camera.
+- LSM303 Sensor.
+- DS1621 Sensor.
+** Installing the DMK 41BU02 Camera
+These are the steps needed to install this specific camera in the
+Raspberry Pi:
+*** Clone tiscamera repo
+#+begin_src sh
+git clone https://github.com/TheImagingSource/tiscamera.git
+#+end_src
+*** Build dependencies
+#+begin_src sh
+cd tiscamera
+sudo ./scripts/install-dependencies.sh --runtime --compilation
+#+end_src
+*** Build tiscamera
+#+begin_src sh
+mkdir -p build
+cd build
+# Without ARAVIS
+cmake -DBUILD_ARAVIS=OFF -DBUILD_TOOLS=ON ..
+make
+sudo make install
+#+end_src
+*** Workaround
+If the device does not show up, the following workaround might help:
+#+begin_src sh
+  /bin/sh -c 'echo 199e 8101 > /sys/bus/usb/drivers/uvcvideo/new_id'
+#+end_src
+** Installing the DS1621 Sensor
+#+begin_src shell
+  echo ds1621 0x48 >/sys/class/i2c-adapter/i2c-1/new_device
+  pip3 install smbus
+#+end_src

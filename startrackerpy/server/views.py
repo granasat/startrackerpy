@@ -45,7 +45,9 @@ def current_frame():
 
     CAM.lock_acquire()
     CAM.set_camera_params(cam_params)
+    time.sleep(1)
     _, frame = CAM.read()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     CAM.lock_release()
     Path(images_path).mkdir(parents=True, exist_ok=True)
     uid = uuid.uuid1()
@@ -177,8 +179,11 @@ def delete_burst():
     burst = DB.get_burst(burst_id)
     files = int(burst['duration'] / burst['interval'])
     for i in range(1, files+1):
-        image_name = "{}/{}_{}.tiff".format(images_path, burst_id, i)
-        os.remove(image_name)
+        try:
+            image_name = "{}/{}_{}.tiff".format(images_path, burst_id, i)
+            os.remove(image_name)
+        except Exception as e:
+            print(e)
     DB.delete_burst(burst_id)
 
     return "Done"

@@ -20,8 +20,8 @@ services:
       - ./startrackerpy/client:/app/client
       - ./startrackerpy/app.ini:/app/app.ini
       - ./startrackerpy/run.py:/app/run.py
-    depends_on:
-      - influxdb
+#    depends_on:
+#      - influxdb
 
 
   nginx:

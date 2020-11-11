@@ -3,7 +3,7 @@
 
 }
 .camera {
-  max-width: 460px;
+  max-width: 465px;
   border-right: 1px solid #dee2e6;
 }
 
@@ -109,5 +109,9 @@ button:hover,
   margin-right: 5px;
 }
 #btn-refresh-metrics {
-  margin-right: 40px
+  margin-right: 40px;
+}
+
+.nav-footer {
+  margin-top: 10px;
 }
