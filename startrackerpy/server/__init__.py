@@ -6,7 +6,7 @@ from server.jobs import Jobs
 from server.startracker.catalog import Catalog
 
 lock = threading.Lock()
-influx_cli = InfluxDBClient('192.168.1.74', 8086, 'admin', '12345', 'startrackerpy')
+influx_cli = InfluxDBClient('influxdb', 8086, 'admin', '12345', 'startrackerpy')
 # Probably need to fix this path for docker
 FILE_PATH = Path(__file__).parent.absolute()
 catalogs_path = f"{FILE_PATH}/startracker/catalogs/out"
