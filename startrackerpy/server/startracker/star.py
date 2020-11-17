@@ -28,13 +28,21 @@ class Star:
         return self.hip_number
 
     def add_neighbour(self, star):
+        """Add an Star as neighbour.
+
+        :param star: Neighbour Star object"""
         self._neighbours.append(star)
 
     def get_neighbours(self):
+        """Returns the list of neighbours.
+
+        :return: List of Stars"""
         return self._neighbours
 
     def get_cartesian_coords(self):
-        """Converts the given ra and dec to its cartesian coordinates"""
+        """Converts the given ra and dec to its cartesian coordinates.
+
+        :return: List of cartesian coords [x,y,z]"""
         r = 1
         dec = self.dec + 90
         x = r * math.sin(np.deg2rad(dec)) * math.cos(np.deg2rad(self.ra))
@@ -44,7 +52,10 @@ class Star:
         return [x, y, z]
 
     def get_distance(self, star):
-        """Returns the angular distance to the given star"""
+        """Returns the angular distance to the given star.
+
+        :param star: Star object to get distance to
+        :return: Angular distance."""
         if self == star:
             return 0
 
@@ -56,4 +67,7 @@ class Star:
         return dab
 
     def set_name(self, name):
+        """Sets a well known name.
+
+        :param name: Name for this star."""
         self.name = name

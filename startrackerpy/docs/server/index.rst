@@ -35,3 +35,33 @@ metrics
     :members:
     :undoc-members:
     :show-inheritance:
+
+catalog
+-----------------------------
+.. automodule:: server.startracker.catalog
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+ImageStar
+-----------------------------
+.. automodule:: server.startracker.image_star
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Star
+-----------------------------
+.. automodule:: server.startracker.star
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ImageUtils
+-----------------------------
+.. automodule:: server.startracker.image
+    :members:
+    :undoc-members:
+    :show-inheritance:

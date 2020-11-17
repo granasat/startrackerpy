@@ -85,6 +85,11 @@ class ImageUtils:
 
     @classmethod
     def get_histogram_bytes(cls, img):
+        """Calculate the histogram of a given image.
+
+        :param img: Image to calculate the histogram to.
+
+        :return: Histogram image in bytes."""
         # Histogram
         hist = cv2.calcHist([img], [0], None, [256], [0, 256])
         buf = BytesIO()
@@ -118,7 +123,10 @@ class ImageUtils:
     @classmethod
     def draw_guide_stars(cls, img, img_stars, pattern, max=20, color=(255, 255, 255)):
         """Given an image and a list of Centroids
-        draw lines in the image between them in order"""
+        draw lines in the image between them in order.
+        :param img: Image to draw in.
+        :param img_stars: List of stars to draw lines to.
+        :param pattern: Pattern of stars."""
         # Build WCS
         pixels_x = np.array([])
         pixels_y = np.array([])
